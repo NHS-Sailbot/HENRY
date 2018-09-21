@@ -29,7 +29,6 @@ namespace HENRY
 		"##  ##  ";
 
 		Ascii_ISO_3D(image, 8);
-	------------------------------
-	*/
+	------------------------------*/
 	int Ascii_ISO_3D(const char * data, const unsigned short width);
 }
