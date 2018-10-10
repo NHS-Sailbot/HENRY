@@ -4,6 +4,21 @@
 
 namespace HENRY
 {
+	/* A function that takes in a set of data
+	that represents an image and it's width,
+	and it prints it to the serial monitor
+	in isometric 3D.
+
+		for example:
+	------------------------------
+		const char * image =
+		" # # # #"
+		"# # # # "
+		"  ##  ##"
+		"##  ##  ";
+
+		Ascii_ISO_3D(image, 8);
+	------------------------------*/
 	int Ascii_ISO_3D(const char * data, const unsigned short width)
 	{
 		/*---------------------
