@@ -4,6 +4,12 @@
 
 namespace HENRY
 {
+	/*------------------------------------------
+	|                                          |
+	|                 FUNCTIONS                |
+	|                                          |
+	------------------------------------------*/
+	
 	/* A function that takes in a set of data
 	that represents an image and it's width,
 	and it prints it to the serial monitor
@@ -19,7 +25,7 @@ namespace HENRY
 
 		Ascii_ISO_3D(image, 8);
 	------------------------------*/
-	int Ascii_ISO_3D(const char * data, const unsigned short width)
+	bool Ascii_ISO_3D(const char * data, const unsigned short width)
 	{
 		/*---------------------
 		|   bullet proofing   |
@@ -38,7 +44,7 @@ namespace HENRY
 			Serial.println("ERROR::ASCII_ISO_3D: Data does not match width!");
 			Serial.println("  Possible causes: input width is not the width of the image");
 			Serial.println("                   char set does not have a constant width");
-			return 0;
+			return 1;
 		}
 		/*---------------------
 		|   drawing process   |

@@ -1,0 +1,13 @@
+{
+  "configurations": [
+    {
+      "name": "Windows x64",
+      "includePath": [ "include" ],
+      "defines": [ "_DEBUG" ],
+      "compilerSwitches": "/std:c++17",
+      "intelliSenseMode": "msvc-x64",
+      "forcedInclude": [ "pch.h" ],
+      "undefines": []
+    }
+  ]
+}
