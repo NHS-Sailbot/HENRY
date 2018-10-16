@@ -118,11 +118,11 @@ namespace HENRY
 	|                                          |
 	------------------------------------------*/
 	
-	/* A Class that holds all the information
-	and methods for the boats to be autonomous.
-	its constructor takes a pointer to a struct
-	that holds all the necessary pins and values 
-	for the boat to run.
+	/* 'Boat' is a class that holds all the information
+	and methods for the boats to be autonomous.	Its 
+	constructor takes a pointer to a struct that holds 
+	all the necessary pins and values for the boat to 
+	run.
 
 		for example:
 	------------------------------
@@ -154,43 +154,68 @@ namespace HENRY
 		//printing
 	}
 	
+	/* Method that fetches the value from the boat's 
+	rotary encoder. */
 	unsigned int Boat::rotaryEncoderValue()
 	{
+		/* Initialise the SPI bus. */
 		SPI.begin();
+		/* Set the SPI settings. */
   		SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE0));
+		/* Write to the rotary encoder's pin a value of 0. */
 		digitalWrite(m_prop.m_pin_rESS, LOW);
 		unsigned int value = SPI.transfer(0xFF);
+		/* Bit shift left the bits of 'value'. */
 		value << 8;
+		/* Bitwise OR statement between 'value' and the return
+		value of SPI.transfer.(0xFF). the OR statement turns
+		all bits that are on in either of them on in the result.*/
 		value | SPI.transfer.(0xFF);
+		/* Bit shift right the bits of 'value'*/
 		value >> 5;
+		/* Write to the rotary encoder's pin a value of 1. */
 		digitalWrite(m_prop.m_pin_rESS, HIGH);
+		/* Free the SPI bus. */
 		SPI.end();
 		return value;
 	}
 	
+	/* Method that converts the boat's rotary encoder's 
+	value to an angle that is in radians. */
 	float Boat::rotaryEncoderInRadians()
 	{
-		return (float)this->rotaryEncoderValue() / 1024 * 3.14159265 * 2;
+		/* rotaryEncoderValue() returns an unsigned integer with
+		value from 0 to 1023, so we divide it by its 'maximum value'
+		of 1024 (its basically like saying 1023 is 99% around the 
+		circle and then 1024 is just back to the start, so it outputs
+		0). we then multiply it by TAU or 2*PI to map it from 0 to 6.28.*/
+		return (float)this->rotaryEncoderValue() / 1024 * 6.2831853071;
 	}
 
-	/* Method that returns the distance between two GPS coordinates 
-	whilst assuming the Earth is a cartesian plane on which
-	x is longitude and y is latitude. */
+	/* Method that returns the distance between two 
+	GPS coordinates whilst assuming the Earth is a 
+	cartesian plane on which x is longitude and 
+	y is latitude. */
 	double Boat::GPScoordinateDistance()
 	{
+		/* Using the pythagorean theorem to get the distance between two points
+		on a cartesian plane since arc length calculations are too computationally
+		intesive for what difference they make on the scale of 500 feet.*/
 		return sqrt(GPScoordinateDiffLong() * GPScoordinateDiffLong() + GPScoordinateDiffLat() * GPScoordinateDiffLat()) * 364610.4;
 	}
 	
-	/* Method that returns the difference between the currently assigned
-	search pattern longitude and the GPS's current longitude. */
+	/* Method that returns the difference between the 
+	currently assigned search pattern longitude and the
+	GPS's current longitude. */
 	double Boat::GPScoordinateDiffLong()
 	{
 		if (m_searchPatternLongitude && currentGPScoordinateIndex < m_numSearchPatternCoordinates)
 			return m_searchPatternLongitude[currentGPScoordinateIndex] - gps.location.lng();
 	}
 	
-	/* Method that returns the difference between the currently assigned
-	search pattern latitude and the GPS's current latitude. */
+	/* Method that returns the difference between the 
+	currently assigned search pattern latitude and the 
+	GPS's current latitude. */
 	double Boat::GPScoordinateDiffLat()
 	{
 		if (m_searchPatternLatitude && currentGPScoordinateIndex < m_numSearchPatternCoordinates)
