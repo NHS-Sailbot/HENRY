@@ -1,7 +1,5 @@
 #include "HENRY.h"
 
-#include "Arduino.h"
-
 namespace HENRY
 {
 	/*------------------------------------------
@@ -135,6 +133,7 @@ namespace HENRY
 			11,     // PIN_GPS_RX
 			10,     // PIN_GPS_TX
 			53,     // PIN_rESS  
+			55,		// PIN_GYRO             
 			30,     // PIN_RUDDER
 			31,     // PIN_WINCH 
 		}
@@ -142,9 +141,10 @@ namespace HENRY
 		Boat myBoat(&myProp);
 	------------------------------*/
 	Boat::Boat(BoatProperties * properties) 
-		: m_prop(properties), currentGPScoordinate(0), m_searchPattern(nullptr)
+		: m_prop(properties), currentGPScoordinateIndex(0), 
+		m_searchPatternLatitude(nullptr), m_searchPatternLongitude(nullptr)
 	{
-		this->systemValidate();
+		systemValidate();
 	}
 	
 	Boat::~Boat() {}
@@ -163,18 +163,18 @@ namespace HENRY
 		/* Set the SPI settings. */
   		SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE0));
 		/* Write to the rotary encoder's pin a value of 0. */
-		digitalWrite(m_prop.m_pin_rESS, LOW);
+		digitalWrite(m_prop->m_pin_rESS, LOW);
 		unsigned int value = SPI.transfer(0xFF);
 		/* Bit shift left the bits of 'value'. */
 		value << 8;
 		/* Bitwise OR statement between 'value' and the return
 		value of SPI.transfer.(0xFF). the OR statement turns
-		all bits that are on in either of them on in the result.*/
+		all bits that are on *in either of them* on in the result.*/
 		value | SPI.transfer.(0xFF);
 		/* Bit shift right the bits of 'value'*/
 		value >> 5;
 		/* Write to the rotary encoder's pin a value of 1. */
-		digitalWrite(m_prop.m_pin_rESS, HIGH);
+		digitalWrite(m_prop->m_pin_rESS, HIGH);
 		/* Free the SPI bus. */
 		SPI.end();
 		return value;
@@ -182,21 +182,21 @@ namespace HENRY
 	
 	/* Method that converts the boat's rotary encoder's 
 	value to an angle that is in radians. */
-	float Boat::rotaryEncoderInRadians()
+	inline double Boat::rotaryEncoderInRadians()
 	{
-		/* rotaryEncoderValue() returns an unsigned integer with
+		/* rotaryEncoderValueInRadians() returns an unsigned integer with
 		value from 0 to 1023, so we divide it by its 'maximum value'
-		of 1024 (its basically like saying 1023 is 99% around the 
+		of 1024 (its basically like saying 1023 is 99.9% around the 
 		circle and then 1024 is just back to the start, so it outputs
 		0). we then multiply it by TAU or 2*PI to map it from 0 to 6.28.*/
-		return (float)this->rotaryEncoderValue() / 1024 * 6.2831853071;
+		return (double)this->rotaryEncoderValue() / 1024 * 6.2831853071;
 	}
 
 	/* Method that returns the distance between two 
 	GPS coordinates whilst assuming the Earth is a 
 	cartesian plane on which x is longitude and 
 	y is latitude. */
-	double Boat::GPScoordinateDistance()
+	inline double Boat::GPScoordinateDistance()
 	{
 		/* Using the pythagorean theorem to get the distance between two points
 		on a cartesian plane since arc length calculations are too computationally
@@ -207,18 +207,66 @@ namespace HENRY
 	/* Method that returns the difference between the 
 	currently assigned search pattern longitude and the
 	GPS's current longitude. */
-	double Boat::GPScoordinateDiffLong()
+	inline double Boat::GPScoordinateDiffLong()
 	{
 		if (m_searchPatternLongitude && currentGPScoordinateIndex < m_numSearchPatternCoordinates)
-			return m_searchPatternLongitude[currentGPScoordinateIndex] - gps.location.lng();
+			return m_searchPatternLongitude[currentGPScoordinateIndex] - m_gps.location.lng();
+		else
+			return 100000.0;
 	}
 	
 	/* Method that returns the difference between the 
 	currently assigned search pattern latitude and the 
 	GPS's current latitude. */
-	double Boat::GPScoordinateDiffLat()
+	inline double Boat::GPScoordinateDiffLat()
 	{
 		if (m_searchPatternLatitude && currentGPScoordinateIndex < m_numSearchPatternCoordinates)
-			return m_searchPatternLatitude[currentGPScoordinateIndex] - gps.location.lat();
+			return m_searchPatternLatitude[currentGPScoordinateIndex] - m_gps.location.lat();
+		else
+			return 100000.0;
 	}
+
+	/* Method that returns the desired angle at which the boat
+	should be heading (in radians) based on the currently selected
+	point in the search pattern. */
+	inline double Boat::GPSsearchPatternDesiredHeading()
+	{
+		return atan2(GPScoordinateDiffLat(), GPScoordinateDiffLong());
+	}
+
+	inline double Boat::GPSsearchPatternDiffHeading()
+	{
+		return GPSsearchPatternDesiredHeading() - gyroCurrentHeading();
+	}
+
+	/* Method that returns what the bno055 electrical
+	gyroscope reads for its roll.
+	(orientation.v[0], orientation.x or orientation.roll) */
+	double Boat::gyroCurrentHeading()
+	{
+		/* sensors_event_t is an object that bno.getEvent() alters
+		by assigning the current readings of the sensor to the passed 
+		object's member variables. */
+		sensors_event_t reading;
+		bno.getEvent(&reading);
+		/* Return the roll component. */
+		return reading.orientation.roll;
+	}
+
+	inline double desiredRudderValue()
+	{
+		return
+	}
+
+	/* Method that calculates if the desired heading is an angle 
+	between the current wind angle's no sail zone range defined 
+	in 'm_prop'. */
+	bool Boat::inNoSailZone()
+	{
+		double reAngle = rotaryEncoderInRadians();
+		m_nszHigh = reAngle + m_prop->m_NoSailZoneAngle / 2;
+		m_nszLow = reAngle - m_prop->m_NoSailZoneAngle / 2;
+		return m_nszHigh > GPSsearchPatternDesiredHeading() > m_nszLow;
+	}
+
 }
