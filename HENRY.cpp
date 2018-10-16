@@ -105,6 +105,95 @@ namespace HENRY
 			for (unsigned short i = 0; i < y + 1; i++)
 				Serial.print(' ');
 		}
-		return 1;
+		return 0;
+	}
+	
+	
+	
+	
+	
+	/*------------------------------------------
+	|                                          |
+	|                  OBJECTS                 |
+	|                                          |
+	------------------------------------------*/
+	
+	/* A Class that holds all the information
+	and methods for the boats to be autonomous.
+	its constructor takes a pointer to a struct
+	that holds all the necessary pins and values 
+	for the boat to run.
+
+		for example:
+	------------------------------
+		BoatProperties myProp = {
+			30,     // NSZ_ANGLE 
+			2100,   // RUDDER_MAX
+			0,      // RUDDER_MIN
+			2100,   // WINCH_MAX 
+			0,      // WINCH_MIN 
+			11,     // PIN_GPS_RX
+			10,     // PIN_GPS_TX
+			53,     // PIN_rESS  
+			30,     // PIN_RUDDER
+			31,     // PIN_WINCH 
+		}
+
+		Boat myBoat(&myProp);
+	------------------------------*/
+	Boat::Boat(BoatProperties * properties) 
+		: m_prop(properties), currentGPScoordinate(0), m_searchPattern(nullptr)
+	{
+		this->systemValidate();
+	}
+	
+	Boat::~Boat() {}
+	
+	bool Boat::systemValidate()
+	{
+		//printing
+	}
+	
+	unsigned int Boat::rotaryEncoderValue()
+	{
+		SPI.begin();
+  		SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE0));
+		digitalWrite(m_prop.m_pin_rESS, LOW);
+		unsigned int value = SPI.transfer(0xFF);
+		value << 8;
+		value | SPI.transfer.(0xFF);
+		value >> 5;
+		digitalWrite(m_prop.m_pin_rESS, HIGH);
+		SPI.end();
+		return value;
+	}
+	
+	float Boat::rotaryEncoderInRadians()
+	{
+		return (float)this->rotaryEncoderValue() / 1024 * 3.14159265 * 2;
+	}
+
+	/* Method that returns the distance between two GPS coordinates 
+	whilst assuming the Earth is a cartesian plane on which
+	x is longitude and y is latitude. */
+	double Boat::GPScoordinateDistance()
+	{
+		return sqrt(GPScoordinateDiffLong() * GPScoordinateDiffLong() + GPScoordinateDiffLat() * GPScoordinateDiffLat()) * 364610.4;
+	}
+	
+	/* Method that returns the difference between the currently assigned
+	search pattern longitude and the GPS's current longitude. */
+	double Boat::GPScoordinateDiffLong()
+	{
+		if (m_searchPatternLongitude && currentGPScoordinateIndex < m_numSearchPatternCoordinates)
+			return m_searchPatternLongitude[currentGPScoordinateIndex] - gps.location.lng();
+	}
+	
+	/* Method that returns the difference between the currently assigned
+	search pattern latitude and the GPS's current latitude. */
+	double Boat::GPScoordinateDiffLat()
+	{
+		if (m_searchPatternLatitude && currentGPScoordinateIndex < m_numSearchPatternCoordinates)
+			return m_searchPatternLatitude[currentGPScoordinateIndex] - gps.location.lat();
 	}
 }
