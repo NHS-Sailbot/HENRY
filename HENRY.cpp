@@ -108,8 +108,6 @@ namespace HENRY
 	
 	
 	
-	
-	
 	/*------------------------------------------
 	|                                          |
 	|                  OBJECTS                 |
@@ -126,10 +124,10 @@ namespace HENRY
 	------------------------------
 		BoatProperties myProp = {
 			30,     // NSZ_ANGLE 
-			2100,   // RUDDER_MAX
 			0,      // RUDDER_MIN
-			2100,   // WINCH_MAX 
+			2100,   // RUDDER_MAX
 			0,      // WINCH_MIN 
+			2100,   // WINCH_MAX 
 			11,     // PIN_GPS_RX
 			10,     // PIN_GPS_TX
 			53,     // PIN_rESS  
@@ -158,7 +156,35 @@ namespace HENRY
 	
 	bool Boat::systemValidate()
 	{
-		//printing
+		/* Printing of the set values. */
+		Serial.println("----------------------------------------------------------");
+		Serial.println("|                   Boat Properties                      |");
+		Serial.println("----------------------------------------------------------");
+		Serial.print("No Sailzone Angle:      "); Serial.println(m_prop->m_NoSailZoneAngle);
+		Serial.print("Rudder Minimum:         "); Serial.println(m_prop->m_RudderMin);
+		Serial.print("Rudder Maximum:         "); Serial.println(m_prop->m_RudderMin);
+		Serial.print("Winch Minimum:          "); Serial.println(m_prop->m_winchMin);
+		Serial.print("Winch Maximum:          "); Serial.println(m_prop->m_winchMax);
+		Serial.print("GPS RX Pin:             "); Serial.println(m_prop->m_pin_GPS_RX);
+		Serial.print("GPS TX Pin:             "); Serial.println(m_prop->m_pin_GPS_TX);
+		Serial.print("Rotary Encoder Pin:     "); Serial.println(m_prop->m_pin_rESS);
+		Serial.print("BNO055 Gyroscope Pin:   "); Serial.println(m_prop->m_pin_gyro);
+		Serial.print("Rudder Pin:             "); Serial.println(m_prop->m_pin_rudder);
+		Serial.print("Winch Pin:              "); Serial.println(m_prop->m_pin_winch);
+
+		if (m_searchPatternLatitude)
+		{
+			Serial.println("----------------------------------------------------------");
+			Serial.println("|               set GPS coordinate path                  |");
+			Serial.println("----------------------------------------------------------");
+			for (unsigned short i = 0; i < m_numSearchPatternCoordinates - 1; i++)
+			{
+				Serial.print("("); Serial.print(m_searchPatternLatitude[i]); Serial.print(", ");
+				Serial.print(m_searchPatternLongitude[i]); Serial.print(")");
+			}
+		}
+		else
+			Serial.println("ALERT!: No search pattern has been set");
 	}
 	
 	/* Method that calculates if the desired heading is an angle 
@@ -190,7 +216,7 @@ namespace HENRY
 		/* Bitwise OR statement between 'value' and the return
 		value of SPI.transfer.(0xFF). the OR statement turns
 		all bits that are on *in either of them* on in the result.*/
-		value | SPI.transfer.(0xFF);
+		value | SPI.transfer(0xFF);
 		/* Bit shift right the bits of 'value'*/
 		value >> 5;
 		/* Write to the rotary encoder's pin a value of 1. */
@@ -288,11 +314,11 @@ namespace HENRY
 	(orientation.v[0], orientation.x or orientation.roll) */
 	double Boat::gyroCurrentHeading()
 	{
-		/* sensors_event_t is an object that bno.getEvent() alters
+		/* sensors_event_t is an object that m_gyro.getEvent() alters
 		by assigning the current readings of the sensor to the passed 
 		object's member variables. */
 		sensors_event_t reading;
-		bno.getEvent(&reading);
+		m_gyro.getEvent(&reading);
 		/* Return the roll component. */
 		return reading.orientation.roll;
 	}
@@ -334,6 +360,7 @@ namespace HENRY
 	 --Note: call this method in loop for desired functionality. */
 	void Boat::sail()
 	{
+		systemValidate();
 		m_winchServo.writeMicroseconds(desiredWinchValue());
 		m_rudderServo.writeMicroseconds(desiredRudderValue());
 		if (m_searchPatternLatitude)
