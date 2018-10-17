@@ -35,7 +35,7 @@ namespace HENRY
 	{
 	private:
 		BoatProperties * m_prop;
-		unsigned short ,_currentGPScoordinateIndex;
+		unsigned short m_currentGPScoordinateIndex;
 		unsigned short m_numSearchPatternCoordinates;
 		double * m_searchPatternLongitude;
 		double * m_searchPatternLatitude;
@@ -61,4 +61,5 @@ namespace HENRY
 		void setSearchPatternCoordinates(double * lat, double * lon);
 		void runThroughSearchPattern();
 		void sail();
+	}
 }
