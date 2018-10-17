@@ -140,18 +140,38 @@ namespace HENRY
 
 		Boat myBoat(&myProp);
 	------------------------------*/
+	
+	/* Constructor. The boat requires a 'BoatProperties' so there is
+	no default constructor. This constructor initializes all the
+	necessary member variables. */
 	Boat::Boat(BoatProperties * properties) 
-		: m_prop(properties), currentGPScoordinateIndex(0), 
+		: m_prop(properties), m_currentGPScoordinateIndex(0), 
 		m_searchPatternLatitude(nullptr), m_searchPatternLongitude(nullptr)
 	{
 		systemValidate();
 	}
 	
+	/* Deconstructor. none of the methods or members in the boat
+	are allocated on the heap and thus no cleanup is required when
+	the boat object's stack frame is destroyed. */
 	Boat::~Boat() {}
 	
 	bool Boat::systemValidate()
 	{
 		//printing
+	}
+	
+	/* Method that calculates if the desired heading is an angle 
+	between the current wind angle's no sail zone range defined 
+	in 'm_prop'. 
+	 --Note: although this method returns a boolean, it actually 
+	modifies the member variables 'm_nszHigh' and 'm_nszLow'. */
+	bool Boat::inNoSailZone()
+	{
+		double reAngle = rotaryEncoderInRadians();
+		m_nszHigh = reAngle + m_prop->m_NoSailZoneAngle / 2;
+		m_nszLow = reAngle - m_prop->m_NoSailZoneAngle / 2;
+		return m_nszHigh > GPSsearchPatternDesiredHeading() > m_nszLow;
 	}
 	
 	/* Method that fetches the value from the boat's 
@@ -189,7 +209,7 @@ namespace HENRY
 		of 1024 (its basically like saying 1023 is 99.9% around the 
 		circle and then 1024 is just back to the start, so it outputs
 		0). we then multiply it by TAU or 2*PI to map it from 0 to 6.28.*/
-		return (double)this->rotaryEncoderValue() / 1024 * 6.2831853071;
+		return (double)this->rotaryEncoderValue() / 1024 * TAU;
 	}
 
 	/* Method that returns the distance between two 
@@ -209,8 +229,8 @@ namespace HENRY
 	GPS's current longitude. */
 	inline double Boat::GPScoordinateDiffLong()
 	{
-		if (m_searchPatternLongitude && currentGPScoordinateIndex < m_numSearchPatternCoordinates)
-			return m_searchPatternLongitude[currentGPScoordinateIndex] - m_gps.location.lng();
+		if (m_searchPatternLongitude && m_currentGPScoordinateIndex < m_numSearchPatternCoordinates)
+			return m_searchPatternLongitude[m_currentGPScoordinateIndex] - m_gps.location.lng();
 		else
 			return 100000.0;
 	}
@@ -220,23 +240,47 @@ namespace HENRY
 	GPS's current latitude. */
 	inline double Boat::GPScoordinateDiffLat()
 	{
-		if (m_searchPatternLatitude && currentGPScoordinateIndex < m_numSearchPatternCoordinates)
-			return m_searchPatternLatitude[currentGPScoordinateIndex] - m_gps.location.lat();
+		if (m_searchPatternLatitude && m_currentGPScoordinateIndex < m_numSearchPatternCoordinates)
+			return m_searchPatternLatitude[m_currentGPScoordinateIndex] - m_gps.location.lat();
 		else
 			return 100000.0;
 	}
 
 	/* Method that returns the desired angle at which the boat
 	should be heading (in radians) based on the currently selected
-	point in the search pattern. */
+	point in the search pattern with respect to theta = 0 -> east. */
 	inline double Boat::GPSsearchPatternDesiredHeading()
 	{
 		return atan2(GPScoordinateDiffLat(), GPScoordinateDiffLong());
 	}
-
+	
+	/* Method that returns the desired angle at which the boat
+	should be heading (in radians) based on the currently selected
+	point in the search pattern with respect to its current heading. */
 	inline double Boat::GPSsearchPatternDiffHeading()
 	{
 		return GPSsearchPatternDesiredHeading() - gyroCurrentHeading();
+	}
+	
+	/* Method that returns the analog value at which the rudder should
+	be set to in order to turn to the desired heading. 
+	 --Note: this function upon returning a value undergoes an implicit
+	 conversion of double to int. */
+	inline int Boat::desiredRudderValue()
+	{
+		return (GPSsearchPatternDiffHeading() - PI) / TAU * (m_prop->m_RudderMax-m_prop->m_RudderMin) + m_prop->m_RudderMin;
+	}
+	
+	/* Method that returns the analog value at which the winch should
+	be set to in order to open or bring in the sails. 
+	 --Note: this function upon returning a value undergoes an implicit
+	 conversion of double to int. */
+	inline int Boat::desiredWinchValue()
+	{
+		double angle = rotaryEncoderInRadians();
+		if (angle > PI)
+			angle = TAU - angle;
+		return angle / TAU * (m_prop->m_winchMax - m_prop->m_winchMin) + m_prop->m_winchMin;
 	}
 
 	/* Method that returns what the bno055 electrical
@@ -252,21 +296,47 @@ namespace HENRY
 		/* Return the roll component. */
 		return reading.orientation.roll;
 	}
-
-	inline double desiredRudderValue()
+	
+	/* Method that assigns the member variables pointing to 
+	two arrays of gps coordinates to a pointer that points to
+	an actual array on the stack in the users scope. This method
+	also searches for a 0 at the end to set the end of the search
+	pattern as well as verify that the two pointers are pointing to
+	arrays of equal length. */
+	void Boat::setSearchPatternCoordinates(double * lat, double * lon)
 	{
-		return
+		while (lat[m_numSearchPatternCoordinates])
+			m_numSearchPatternCoordinates++;
+		/*---------------------
+		|   bullet proofing   |
+		---------------------*/
+		if (lon[m_numSearchPatternCoordinates])
+		{
+			m_searchPatternLatitude = nullptr;
+			m_searchPatternLongitude = nullptr;
+		}
+		else
+		{
+			m_searchPatternLatitude = lat;
+			m_searchPatternLongitude = lon;
+		}
 	}
-
-	/* Method that calculates if the desired heading is an angle 
-	between the current wind angle's no sail zone range defined 
-	in 'm_prop'. */
-	bool Boat::inNoSailZone()
+	
+	/* Method that increments the current gps coordinate index.
+	 --Note: call this method in loop for desired functionality. */
+	void Boat::runThroughSearchPattern()
 	{
-		double reAngle = rotaryEncoderInRadians();
-		m_nszHigh = reAngle + m_prop->m_NoSailZoneAngle / 2;
-		m_nszLow = reAngle - m_prop->m_NoSailZoneAngle / 2;
-		return m_nszHigh > GPSsearchPatternDesiredHeading() > m_nszLow;
+		if (GPScoordinateDistance() < m_acceptableRange)
+			m_currentGPScoordinateIndex++;
 	}
-
+	
+	/* Method that calls all the necessary methods for the boat to sail.
+	 --Note: call this method in loop for desired functionality. */
+	void Boat::sail()
+	{
+		m_winchServo.writeMicroseconds(desiredWinchValue());
+		m_rudderServo.writeMicroseconds(desiredRudderValue());
+		if (m_searchPatternLatitude)
+			runThroughSearchPattern();
+	}
 }
