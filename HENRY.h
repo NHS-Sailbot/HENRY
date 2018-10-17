@@ -12,6 +12,9 @@
 #define PIN_RUDDER           30
 #define PIN_WINCH            31
 
+#define PI  3.1415926535
+#define TAU 6.2831853071
+
 namespace HENRY
 {
 	bool Ascii_ISO_3D(const char * data, const unsigned short width);
@@ -32,16 +35,19 @@ namespace HENRY
 	{
 	private:
 		BoatProperties * m_prop;
-		unsigned short currentGPScoordinateIndex;
+		unsigned short ,_currentGPScoordinateIndex;
 		unsigned short m_numSearchPatternCoordinates;
 		double * m_searchPatternLongitude;
 		double * m_searchPatternLatitude;
 		double m_nszHigh, m_nszLow;
+		double m_acceptableRange;
+		Servo m_rudderServo, m_winchServo;
 		TinyGPSPlus m_gps;
 	public:
 		Boat(BoatProperties * properties);
 		~Boat();
 		bool systemValidate();
+		bool inNoSailZone();
 		unsigned int rotaryEncoderValue();
 		inline double rotaryEncoderInRadians();
 		inline double GPScoordinateDistance();
@@ -49,7 +55,10 @@ namespace HENRY
 		inline double GPScoordinateDiffLat();
 		inline double GPSsearchPatternDesiredHeading();
 		inline double GPSsearchPatternDiffHeading();
+		inline int desiredRudderValue();
+		inline int desiredWinchValue();
 		double gyroCurrentHeading();
-		bool inNoSailZone();
-	};	
+		void setSearchPatternCoordinates(double * lat, double * lon);
+		void runThroughSearchPattern();
+		void sail();
 }
