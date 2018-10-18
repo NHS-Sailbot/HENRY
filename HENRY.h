@@ -25,8 +25,8 @@ namespace HENRY
 	
 	struct BoatProperties
 	{
-		unsigned short m_NoSailZoneAngle,
-			m_RudderMin, m_RudderMax,
+		double m_NoSailZoneAngle;
+		unsigned short m_RudderMin, m_RudderMax,
 			m_winchMin, m_winchMax,
 			m_pin_GPS_RX, m_pin_GPS_TX,
 			m_pin_rESS,
@@ -63,7 +63,7 @@ namespace HENRY
 		inline int desiredRudderValue();
 		inline int desiredWinchValue();
 		double gyroCurrentHeading();
-		void setSearchPatternCoordinates(double * lat, double * lon);
+		void setSearchPatternCoordinates(double * lat, double * lon, double acc);
 		void runThroughSearchPattern();
 		void sail();
 	};
