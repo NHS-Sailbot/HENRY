@@ -146,6 +146,7 @@ namespace HENRY
 		: m_prop(properties), m_currentGPScoordinateIndex(0), 
 		m_searchPatternLatitude(nullptr), m_searchPatternLongitude(nullptr)
 	{
+		Serial.begin(19200);
 		systemValidate();
 	}
 	
@@ -329,8 +330,9 @@ namespace HENRY
 	also searches for a 0 at the end to set the end of the search
 	pattern as well as verify that the two pointers are pointing to
 	arrays of equal length. */
-	void Boat::setSearchPatternCoordinates(double * lat, double * lon)
+	void Boat::setSearchPatternCoordinates(double * lat, double * lon, double acc)
 	{
+		m_acceptableRange = acc;
 		while (lat[m_numSearchPatternCoordinates])
 			m_numSearchPatternCoordinates++;
 		/*---------------------
