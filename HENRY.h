@@ -5,18 +5,6 @@
 #include <TinyGPS++.h>
 #include <Adafruit_BNO055.h>
 
-#define NSZ_ANGLE            30
-#define RUDDER_MIN            0
-#define RUDDER_MAX         2100
-#define WINCH_MIN             0
-#define WINCH_MAX          2100
-#define PIN_GPS_RX           11
-#define PIN_GPS_TX           10
-#define PIN_rESS             53
-#define PIN_GYRO             55
-#define PIN_RUDDER           30
-#define PIN_WINCH            31
-
 #define TAU 6.2831853071
 
 namespace HENRY
