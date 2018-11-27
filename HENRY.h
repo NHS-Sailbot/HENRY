@@ -26,9 +26,7 @@ namespace HENRY
 	struct BoatProperties
 	{
 		double m_NoSailZoneAngle;
-		unsigned short m_RudderMin, m_RudderMax,
-			m_winchMin, m_winchMax,
-			m_pin_GPS_RX, m_pin_GPS_TX,
+		unsigned char m_pin_GPS_RX, m_pin_GPS_TX,
 			m_pin_rESS,
 			m_pin_gyro,
 			m_pin_rudder,
