@@ -1,9 +1,10 @@
 #pragma once
 
-namespace PETE
+namespace HENRY
 {
 	class Motor
 	{
+	private:
 		unsigned char m_pinPWM,
 			m_pinDirection;
 	public:

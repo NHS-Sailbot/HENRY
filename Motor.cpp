@@ -1,6 +1,6 @@
-#include "PETE.h"
+#include "Motor.h"
 
-namespace PETE
+namespace HENRY
 {
 
 	/* Motor is a class that, with a pair of pins, controls a Linear
@@ -12,13 +12,13 @@ namespace PETE
 
 		for example:
 	------------------------------
-		PETE::Motor myPeteMotor(3, 2); // set PWM pin to 3 and direction pin to 2
-		or: - - - - myPeteMotor(MOTOR_A)
+		HENRY::Motor myMotor(3, 2); // set PWM pin to 3 and direction pin to 2
+		or - - - - - myMotor(MOTOR_A)
 		...
-		myPeteMotor.drive(255, HIGH); // set to push at max speed
+		myMotor.drive(255, HIGH); // set to push at max speed
 		delay(1000) // push out for one second
 
-		myPeteMotor.drive(255, LOW); // set to pull at max speed
+		myMotor.drive(255, LOW); // set to pull at max speed
 		delay(1000) // pull in for one second
 
 	*/
@@ -34,7 +34,7 @@ namespace PETE
 	}
 
 	Motor::Motor(bool motor_number)
-		: m_pinPWM(motor_number ? 3 : 9), m_pinDirection(motor_number ? 2 : 8) 
+		: m_pinPWM(motor_number ? 3 : 9), m_pinDirection(motor_number ? 2 : 8)
 	{
 		pinMode(m_pinPWM, OUTPUT);
 		pinMode(m_pinDirection, OUTPUT);
