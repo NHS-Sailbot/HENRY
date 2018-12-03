@@ -2,8 +2,4 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/HENRY.vcxproj.user
-/HENRY.vcxproj.filters
-/HENRY.vcxproj
-/HENRY.sln
 /.vs
