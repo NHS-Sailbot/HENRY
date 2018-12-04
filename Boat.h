@@ -1,5 +1,11 @@
 #pragma once
 
+#include <SPI.h>
+#include <Servo.h>
+#include <TinyGPS++.h>
+#include <Adafruit_BNO055.h>
+#include <Arduino.h>
+
 namespace HENRY
 {
 	struct BoatProperties

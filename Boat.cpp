@@ -1,5 +1,7 @@
 #include "Boat.h"
 
+#define TAU 6.2831853071
+
 namespace HENRY
 {
 
@@ -47,10 +49,6 @@ namespace HENRY
 		Serial.println("|                   Boat Properties                      |");
 		Serial.println("----------------------------------------------------------");
 		Serial.print("No Sailzone Angle:      "); Serial.println(m_prop->m_NoSailZoneAngle);
-		Serial.print("Rudder Minimum:         "); Serial.println(m_prop->m_RudderMin);
-		Serial.print("Rudder Maximum:         "); Serial.println(m_prop->m_RudderMin);
-		Serial.print("Winch Minimum:          "); Serial.println(m_prop->m_winchMin);
-		Serial.print("Winch Maximum:          "); Serial.println(m_prop->m_winchMax);
 		Serial.print("GPS RX Pin:             "); Serial.println(m_prop->m_pin_GPS_RX);
 		Serial.print("GPS TX Pin:             "); Serial.println(m_prop->m_pin_GPS_TX);
 		Serial.print("Rotary Encoder Pin:     "); Serial.println(m_prop->m_pin_rESS);
@@ -180,7 +178,7 @@ namespace HENRY
 	 conversion of double to int. */
 	inline int Boat::desiredRudderValue()
 	{
-		return (GPSsearchPatternDiffHeading() - PI) / TAU * (m_prop->m_RudderMax - m_prop->m_RudderMin) + m_prop->m_RudderMin;
+		return (GPSsearchPatternDiffHeading() - PI) / TAU * (1024/*rudderMax*/ - 0 /*rudderMin*/) + 0 /*rudderMin*/;
 	}
 
 	/* Method that returns the analog value at which the winch should
@@ -192,7 +190,7 @@ namespace HENRY
 		double angle = rotaryEncoderInRadians();
 		if (angle > PI)
 			angle = TAU - angle;
-		return angle / TAU * (m_prop->m_winchMax - m_prop->m_winchMin) + m_prop->m_winchMin;
+		return angle / TAU * (1024/*winchMax*/ - 0/*winchMin*/) + 0 /*winchMin*/;
 	}
 
 	/* Method that returns what the bno055 electrical

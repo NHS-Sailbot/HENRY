@@ -29,15 +29,15 @@ namespace HENRY
 	Motor::Motor(unsigned char pin_pwm, unsigned char pin_dir)
 		: m_pinPWM(pin_pwm), m_pinDirection(pin_dir)
 	{
-		pinMode(m_pinPWM, OUTPUT);
-		pinMode(m_pinDirection, OUTPUT);
+		pinMode(m_pinPWM, 1);
+		pinMode(m_pinDirection, 1);
 	}
 
 	Motor::Motor(bool motor_number)
 		: m_pinPWM(motor_number ? 3 : 9), m_pinDirection(motor_number ? 2 : 8)
 	{
-		pinMode(m_pinPWM, OUTPUT);
-		pinMode(m_pinDirection, OUTPUT);
+		pinMode(m_pinPWM, 1);
+		pinMode(m_pinDirection, 1);
 	}
 
 	/* This function just sets the values for which the motor runs with.

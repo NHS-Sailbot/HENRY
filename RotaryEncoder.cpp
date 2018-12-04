@@ -16,12 +16,23 @@ namespace HENRY
 	}
 }
 
+/*
 
+Kill all the furries
+----------------------
+LET THEM ALL DIE
+----------------------
+they all identify as animals and thus
+are eligible for irradification on the basis
+of them being an invasive species!
+ 
+ */
 
+/*
 
 /*******Interrupt-based Rotary Encoder Sketch*******
 by Simon Merrett, based on insight from Oleg Mazurov, Nick Gammon, rt, Steve Spence
-*/
+
 
 static int pinA = 2; // Our first hardware interrupt pin is digital pin 2
 static int pinB = 3; // Our second hardware interrupt pin is digital pin 3
@@ -69,3 +80,5 @@ void loop() {
 		oldEncPos = encoderPos;
 	}
 }
+
+*/
