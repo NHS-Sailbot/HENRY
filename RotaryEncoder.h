@@ -3,6 +3,7 @@
 
 namespace HENRY
 {
+
 	class RotaryEncoder
 	{
 	private:
@@ -14,4 +15,5 @@ namespace HENRY
 
 		void RotaryEncoder::update();
 	};
+
 }

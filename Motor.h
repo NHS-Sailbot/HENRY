@@ -1,8 +1,12 @@
 #pragma once
 #include <Arduino.h>
 
+#define MOTOR_A 1
+#define MOTOR_B 0
+
 namespace HENRY
 {
+
 	class Motor
 	{
 	private:
@@ -15,7 +19,5 @@ namespace HENRY
 
 		void drive(unsigned char power, unsigned char direction);
 	};
-}
 
-#define MOTOR_A 1
-#define MOTOR_B 0
+}

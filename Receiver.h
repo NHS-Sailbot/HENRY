@@ -1,14 +1,17 @@
 #pragma once
 #include <Arduino.h>
 
-class Receiver
+namespace HENRY
 {
-	unsigned short m_pin;
-public:
-	Receiver(unsigned short pin);
-	~Receiver();
-	float read();
-};
 
+	class Receiver
+	{
+		unsigned char m_pin;
+	public:
+		Receiver(unsigned char pin);
+		~Receiver() {}
 
+		float read();
+	};
 
+}

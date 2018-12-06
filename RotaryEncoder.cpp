@@ -1,5 +1,7 @@
 #include "RotaryEncoder.h"
 
+
+
 namespace HENRY
 {
 
@@ -10,8 +12,10 @@ namespace HENRY
 		pinMode(m_pinB, INPUT_PULLUP);
 	}
 
+
 	void RotaryEncoder::update()
 	{
+		/* TODO: figure out how to read the R.E. */
 
 	}
 }
@@ -26,7 +30,7 @@ they all identify as animals and thus
 are eligible for irradification on the basis
 of them being an invasive species!
  
- */
+*/
 
 /*
 
