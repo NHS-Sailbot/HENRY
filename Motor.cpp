@@ -54,4 +54,22 @@ namespace HENRY
 		analogWrite(m_pinPWM, power);
 	}
 
+
+	void Motor::setLength(unsigned short mm)
+	{
+		unsigned short currentLen = m_tofs.getDist();
+		/* this next line is just a logical simplification of a pair
+		of if/else statements. I do this because it negates the creation
+		and destruction of a single stack frame on runtime.
+		-------------------------------------------------
+		if (abs(currentLen - mm) < MOTOR_MIN_RNG))
+			analogWrite(m_pinPWM, 0);
+		else
+			analogWrite(m_pinPWM, 255); */
+		analogWrite(m_pinPWM, (abs(currentLen - mm) < MOTOR_MIN_RNG) * 255);
+
+		
+
+	}
+
 }
