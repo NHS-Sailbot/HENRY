@@ -4,15 +4,18 @@
 
 namespace HENRY
 {
-
-	GPS::GPS(unsigned char pin_rx, unsigned char pin_tx)
-		: m_pinRX(pin_rx), m_pinTX(pin_tx), m_ss(pin_rx, pin_tx)
+	/* GPS is a wrapper class for the TinyGPS++ libraries
+	proprietary gps object. 
+	
+	
+	*/
+	void GPS::begin()
 	{
-		m_ss.begin(4800);
-		/* a dedicated serial may be needed to be created
-		on 115200 for this to work because I dont know if 
-		thats what the other things operate on... I think
-		the others are on 9600.*/
+		/* Begin the debugging serial "Serial" on 9600
+		and the dedicated GPS Serial "Serial1" on 9600.
+		This is to be called in "setup()" */
+		Serial.begin(9600);
+		Serial1.begin(9600);
 	}
 
 
@@ -22,8 +25,8 @@ namespace HENRY
 		is needed for what they say is 'dispatching incoming
 		characters', I interpret that as reformatting the 
 		gps based on what comes in through the rx port. */
-		while (m_ss.available())
-			m_gps.encode(ss.read());
+		while (Serial1.available())
+			m_gps.encode(Serial1.read());
 		/* call the method to check if the gps has changed 
 		position. if it has, update the position variables
 		in our wrapper class. */
