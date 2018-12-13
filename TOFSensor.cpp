@@ -5,6 +5,7 @@
 namespace HENRY
 {
 
+	/* TODO: Add descriptions and usage documentation. */
 	TOFSensor::TOFSensor()
 	{
 		if (!m_sensor.begin())

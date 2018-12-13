@@ -29,17 +29,20 @@ namespace HENRY
 	how fast or slow the motor travels, whereas the digital direction
 	pin sends either HIGH or LOW dictating whether to go in or out. */
 	Motor::Motor(unsigned char pin_pwm, unsigned char pin_dir)
-		: m_pinPWM(pin_pwm), m_pinDirection(pin_dir)
+		: m_pinPWM(pin_pwm), m_pinDir(pin_dir)
 	{
 		pinMode(m_pinPWM, 1);
-		pinMode(m_pinDirection, 1);
+		pinMode(m_pinDir, 1);
 	}
 
+	/* This secendary constructor takes in a boolean that's meant to 
+	be used with the macros "MOTOR_A" and "MOTOR_B" to assign the pins
+	since the motor controller hard codes the pins usable. */
 	Motor::Motor(bool motor_number)
-		: m_pinPWM(motor_number ? 3 : 9), m_pinDirection(motor_number ? 2 : 8)
+		: m_pinPWM(motor_number ? 3 : 9), m_pinDir(motor_number ? 2 : 8)
 	{
 		pinMode(m_pinPWM, 1);
-		pinMode(m_pinDirection, 1);
+		pinMode(m_pinDir, 1);
 	}
 
 	/* This function just sets the values for which the motor runs with.
@@ -50,15 +53,17 @@ namespace HENRY
 	possible, forever.*/
 	void Motor::drive(unsigned char power, unsigned char direction)
 	{
-		digitalWrite(m_pinDirection, direction);
 		analogWrite(m_pinPWM, power);
+		digitalWrite(m_pinDir, direction);
 	}
 
-
+	/* This setLength(...) function calculates the distance that the 
+	actuator is out and extends/retracts it based on how far the 
+	specified length is in relation to it. */
 	void Motor::setLength(unsigned short mm)
 	{
 		unsigned short currentLen = m_tofs.getDist();
-		/* this next line is just a logical simplification of a pair
+		/* this next two lines are just a logical simplification of a pair
 		of if/else statements. I do this because it negates the creation
 		and destruction of a single stack frame on runtime.
 		-------------------------------------------------
@@ -67,9 +72,8 @@ namespace HENRY
 		else
 			analogWrite(m_pinPWM, 255); */
 		analogWrite(m_pinPWM, (abs(currentLen - mm) < MOTOR_MIN_RNG) * 255);
-
-		
-
+		/* TODO: Check if 1 or HIGH is out or in. Assumed HIGH is out. */
+		digitalWrite(m_pinDir, currentLen - mm < 0);
 	}
 
 }

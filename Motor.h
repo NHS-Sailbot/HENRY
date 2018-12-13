@@ -13,7 +13,7 @@ namespace HENRY
 	{
 	private:
 		unsigned char m_pinPWM,
-			m_pinDirection;
+			m_pinDir;
 		TOFSensor m_tofs;
 	public:
 		Motor(unsigned char pin_pwm, unsigned char pin_dir);

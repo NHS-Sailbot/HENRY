@@ -1,6 +1,8 @@
 #include "vec.h"
 
-
+/* This is not going to be documented, it's source 
+from one of my personal libraries that adds math
+macros, functions and structs. */
 
 namespace Math
 {

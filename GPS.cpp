@@ -4,10 +4,11 @@
 
 namespace HENRY
 {
+
 	/* GPS is a wrapper class for the TinyGPS++ libraries
 	proprietary gps object. 
 	
-	
+	TODO: Add usage documentation.
 	*/
 	void GPS::begin()
 	{
@@ -17,7 +18,7 @@ namespace HENRY
 		Serial.begin(9600);
 		Serial1.begin(9600);
 	}
-
+	
 
 	void GPS::update()
 	{
