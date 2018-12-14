@@ -10,9 +10,10 @@ namespace HENRY
 		Adafruit_VL53L0X m_sensor;
 		VL53l0X_RangingMeasurementData_t m_measure;
 	public:
-		TOFSensor();
+		TOFSensor() {}
 		~TOFSensor() {}
 
+		void init();
 		unsigned short getDist();
 	};
 

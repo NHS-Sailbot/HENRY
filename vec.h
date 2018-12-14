@@ -54,4 +54,9 @@ namespace Math
 
 		bool operator==(const vec3 & b);
 	};
+
+	template <typename T> struct vec
+	{
+		
+	};
 }

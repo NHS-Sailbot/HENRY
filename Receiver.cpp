@@ -7,7 +7,10 @@ namespace HENRY
 
 	/* TODO: Add descriptions and usage documentation. */
 	Receiver::Receiver(unsigned char pin)
-		: m_pin(pin)
+		: m_pin(pin) {}
+
+
+	void Receiver::init()
 	{
 		pinMode(m_pin, INPUT);
 	}

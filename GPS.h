@@ -11,10 +11,10 @@ namespace HENRY
 		TinyGPSPlus m_gps;
 		Math::vec2 m_loc;
 	public:
-		GPS() {};
+		GPS() {}
 		~GPS() {}
 
-		void begin();
+		void init();
 		void update();
 		double getLongitude() { return m_loc.y; }
 		double getLatitude() { return m_loc.x; }

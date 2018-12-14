@@ -20,6 +20,7 @@ namespace HENRY
 		Motor(bool motor_number);
 		~Motor() {}
 
+		void init();
 		void drive(unsigned char power, unsigned char direction);
 		void setLength(unsigned short mm);
 	};

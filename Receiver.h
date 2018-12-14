@@ -11,6 +11,7 @@ namespace HENRY
 		Receiver(unsigned char pin);
 		~Receiver() {}
 
+		void init();
 		float read();
 	};
 

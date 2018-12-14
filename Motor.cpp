@@ -25,21 +25,21 @@ namespace HENRY
 
 	*/
 
-	/* The analog pulse width modulation pin (PWM for short) controls
-	how fast or slow the motor travels, whereas the digital direction
-	pin sends either HIGH or LOW dictating whether to go in or out. */
+	/* The main constructor just takes in and assigns specific 
+	pins on the board for the */
 	Motor::Motor(unsigned char pin_pwm, unsigned char pin_dir)
-		: m_pinPWM(pin_pwm), m_pinDir(pin_dir)
-	{
-		pinMode(m_pinPWM, 1);
-		pinMode(m_pinDir, 1);
-	}
+		: m_pinPWM(pin_pwm), m_pinDir(pin_dir) {}
 
 	/* This secendary constructor takes in a boolean that's meant to 
 	be used with the macros "MOTOR_A" and "MOTOR_B" to assign the pins
 	since the motor controller hard codes the pins usable. */
 	Motor::Motor(bool motor_number)
-		: m_pinPWM(motor_number ? 3 : 9), m_pinDir(motor_number ? 2 : 8)
+		: m_pinPWM(motor_number ? 3 : 9), m_pinDir(motor_number ? 2 : 8) {}
+
+	/* The analog pulse width modulation pin (PWM for short) controls
+	how fast or slow the motor travels, whereas the digital direction
+	pin sends either HIGH or LOW dictating whether to go in or out. */
+	void Motor::init()
 	{
 		pinMode(m_pinPWM, 1);
 		pinMode(m_pinDir, 1);
@@ -72,8 +72,7 @@ namespace HENRY
 		else
 			analogWrite(m_pinPWM, 255); */
 		analogWrite(m_pinPWM, (abs(currentLen - mm) < MOTOR_MIN_RNG) * 255);
-		/* TODO: Check if 1 or HIGH is out or in. Assumed HIGH is out. */
-		digitalWrite(m_pinDir, currentLen - mm < 0);
+		digitalWrite(m_pinDir, currentLen < mm);
 	}
 
 }

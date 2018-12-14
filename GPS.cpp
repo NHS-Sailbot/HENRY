@@ -10,7 +10,7 @@ namespace HENRY
 	
 	TODO: Add usage documentation.
 	*/
-	void GPS::begin()
+	void GPS::init()
 	{
 		/* Begin the debugging serial "Serial" on 9600
 		and the dedicated GPS Serial "Serial1" on 9600.
