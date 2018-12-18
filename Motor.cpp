@@ -28,7 +28,9 @@ namespace HENRY
 	/* The main constructor just takes in and assigns specific 
 	pins on the board for the */
 	Motor::Motor(unsigned char pin_pwm, unsigned char pin_dir)
-		: m_pinPWM(pin_pwm), m_pinDir(pin_dir) {}
+		: m_pinPWM(pin_pwm), m_pinDir(pin_dir) 
+	{
+	}
 
 	/* This secendary constructor takes in a boolean that's meant to 
 	be used with the macros "MOTOR_A" and "MOTOR_B" to assign the pins

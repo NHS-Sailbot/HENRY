@@ -6,9 +6,9 @@ namespace HENRY
 {
 
 	Boat::Boat(BoatProperties * prop)
-		: m_prop(prop), m_motorA(MOTOR_A), m_motorB(MOTOR_B),
-
-	{}
+		: m_prop(prop), m_motorA(MOTOR_A), m_motorB(MOTOR_B) 
+	{
+	}
 	
 
 	void Boat::init()

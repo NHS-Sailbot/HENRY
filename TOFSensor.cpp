@@ -18,7 +18,7 @@ namespace HENRY
 		m_sensor.rangingTest(&m_measure, false);
 		if (m_measure.RangeStatus == 4)
 			return 0;
-		return m_measure.RangeMillimeter;
+		return m_measure.RangeMilliMeter;
 	}
 
 }
