@@ -1,10 +1,17 @@
-//https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/arduino-code#download-the-driver-from-github-4-5
+//Original Sample Code:
+//https://learn.adafruit.com/adafruit-bno055-absolute-orientation-sensor/arduino-code
+
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
 #include <utility/imumaths.h>
-  
-Adafruit_BNO055 bno = Adafruit_BNO055(55);
+
+/*
+  bnoSensor is the oreintation/magnatometer sensor class which haddels the data recieved from the sensor 
+  and the needed code in order to return the orientation values of the sensor(x, y, z).    
+ */
+
+Adafruit_BNO055 bnoSensor = Adafruit_BNO055(55);
  
 void setup(void) 
 {
@@ -12,7 +19,7 @@ void setup(void)
   Serial.println("Orientation Sensor Test"); Serial.println("");
   
   /* Initialise the sensor */
-  if(!bno.begin())
+  if(!bnoSensor.begin())
   {
     /* There was a problem detecting the BNO055 ... check your connections */
     Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
@@ -21,16 +28,20 @@ void setup(void)
   
   delay(1000);
     
-  bno.setExtCrystalUse(false);
+  bnoSensor.setExtCrystalUse(false);
 }
  
 void loop(void) 
 {
+  /* Sensor event class contains an orientation component which it self contains xyz components.
+ 
   /* Get a new sensor event */ 
   sensors_event_t event; 
-  bno.getEvent(&event);
+
+  /* bnoSensor modifies event throught getEvent(), updating the orientaion component.*/
+  bnoSensor.getEvent(&event);
   
-  /* Display the floating point data */
+  /* Display the floating point data of the orientation componet of event*/
   Serial.print("X: ");
   Serial.print(event.orientation.x, 4);
   Serial.print("\tY: ");
