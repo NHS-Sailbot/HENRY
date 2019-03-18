@@ -1,10 +1,7 @@
 #include "GPS.h"
 
-
-
 namespace HENRY
 {
-
 	/* GPS is a wrapper class for the TinyGPS++ libraries
 	proprietary gps object. 
 	
@@ -15,7 +12,6 @@ namespace HENRY
 		/* Begin the debugging serial "Serial" on 9600
 		and the dedicated GPS Serial "Serial1" on 9600.
 		This is to be called in "setup()" */
-		Serial.begin(9600);
 		Serial1.begin(9600);
 	}
 	

@@ -5,7 +5,6 @@
 
 namespace HENRY
 {
-
 	class GPS
 	{
 		TinyGPSPlus m_gps;
@@ -16,8 +15,8 @@ namespace HENRY
 
 		void init();
 		void update();
+		Math::vec2& getCoord() { return m_loc; }
 		double getLongitude() { return m_loc.y; }
 		double getLatitude() { return m_loc.x; }
 	};
-
 }

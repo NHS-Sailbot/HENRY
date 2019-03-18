@@ -1,33 +1,71 @@
 #include "Boat.h"
 
-
+#include <Wire.h>
+#include <utility/imumaths.h>
 
 namespace HENRY
 {
-
 	Boat::Boat(BoatProperties * prop)
-		: m_prop(prop), m_motorA(MOTOR_A), m_motorB(MOTOR_B) 
+		: m_prop(prop), m_isTrackingPoints(false), m_currentTrackPoint(0)
 	{
 	}
-	
 
-	void Boat::init()
+	void Boat::sailTowards(const Math::vec2& point)
 	{
-		/* This method executes all the initialization code needed 
-		for all the needed components in the boat object to function. 
-		This can be anything from starting up serial ports to setting
-		the pinmode of their needed ports. */
+		// figure out how to sail
 
-		/* For further documentation, check the source files of the
-		item in interest, they have all their methods and constructors
-		commented. */
+		// test if close to current track point
+		if ((point - getPos()).smag() < TARGET_MINIMUM_DIST * TARGET_MINIMUM_DIST)
+		{
+			m_currentTrackPoint++;
+			if (m_currentTrackPoint > m_trackPointCount - 1)
+				m_isTrackingPoints = false;
+		}
+	}
 
-		/* Begins Serial1 which has been dedicated to the gps. */
+	unsigned int Boat::init()
+	{
+		if (!bnoSensor.begin())
+			return EXIT_CODE::BNO_FAIL;
 		m_gps.init();
-		/* Sets the motors pin modes. */
-		m_motorA.init(); m_motorB.init();
-
-
+		delay(1000);
+		bnoSensor.setExtCrystalUse(false);
 	}
 
+	void Boat::update()
+	{
+		bnoSensor.getEvent(&m_bnoEvent);
+		m_gps.update();
+
+		if (m_isTrackingPoints)
+			sailTowards(*m_trackPoints[m_currentTrackPoint]);
+	}
+
+	Math::vec2& Boat::getPos()
+	{
+		return m_gps.getCoord();
+	}
+
+	Math::vec3& Boat::getRot()
+	{
+		return { m_bnoEvent.orientation.x, m_bnoEvent.orientation.y, m_bnoEvent.orientation.z };
+	}
+
+	void setTargetPos(const Math::vec2 &point)
+	{
+		if (!m_isTrackinPoints)
+			m_isTrackingPoints = true;
+
+		m_trackPoints = &point;
+		m_trackPointCount = 1;
+	}
+
+	void setTargetRoute(const Math::vec2 *points, unsigned short pointCount)
+	{
+		if (!m_isTrackinPoints)
+			m_isTrackingPoints = true;
+
+		m_trackPoints = &point;
+		m_trackPointCount = 1;
+	}
 }

@@ -2,61 +2,115 @@
 
 namespace Math
 {
-	
-	struct vec2
+	template <typename T, int S>
+	struct Vector;
+
+	template <typename T>
+	struct Vector<T, 2>
 	{
-		float x, y;
+		union {
+			T x, r, s;
+		};
+		union {
+			T y, g, t;
+		};
 
-		vec2();
-		vec2(const float _val);
-		vec2(const float _x, const float _y);
+		static Vector<T, 2> polar(T angle, T length);
+		Vector<T, 2>& add(const Vector<T, 2>& vec);
+		Vector<T, 2>& sub(const Vector<T, 2>& vec);
+		Vector<T, 2>& mul(const T fac);
+		Vector<T, 2>& div(const T fac);
+		T dot(const Vector<T, 2>& vec) const;
+		T smag() const;
 
-		vec2 & add(const vec2 & delta);
-		vec2 & sub(const vec2 & delta);
-		vec2 & mult(const vec2 & delta);
-		vec2 & div(const vec2 & delta);
+		T& operator[](int i) const;
 
-		friend vec2 & operator+(vec2 & left, const vec2 & right);
-		friend vec2 & operator-(vec2 & left, const vec2 & right);
-		friend vec2 & operator*(vec2 & left, const vec2 & right);
-		friend vec2 & operator/(vec2 & left, const vec2 & right);
+		Vector<T, 2>& operator+=(const Vector<T, 2>& vec);
+		Vector<T, 2>& operator-=(const Vector<T, 2>& vec);
+		Vector<T, 2>& operator*=(const T fac);
+		Vector<T, 2>& operator/=(const T fac);
 
-		vec2 & operator+=(const vec2 & delta);
-		vec2 & operator-=(const vec2 & delta);
-		vec2 & operator*=(const vec2 & delta);
-		vec2 & operator/=(const vec2 & delta);
-
-		bool operator==(const vec2 & b);
+		Vector<T, 2>& operator+(const Vector<T, 2>& vec);
+		Vector<T, 2>& operator-(const Vector<T, 2>& vec);
+		Vector<T, 2>& operator*(const T fac);
+		Vector<T, 2>& operator/(const T fac);
 	};
 
-	struct vec3
+	template <typename T>
+	struct Vector<T, 3>
 	{
-		float x, y, z;
+		union {
+			T x, r, s;
+		};
+		union {
+			T y, g, t;
+		};
+		union {
+			T z, b, p;
+		};
 
-		vec3();
-		vec3(const float & val);
-		vec3(const float _x, const float _y, const float _z);
+		Vector<T, 3>& add(const Vector<T, 3>& vec);
+		Vector<T, 3>& sub(const Vector<T, 3>& vec);
+		T dot(const Vector<T, 3>& vec) const;
+		Vector<T, 3>& cross(const Vector<T, 3>& vec);
+		T smag() const;
 
-		vec3 & add(const vec3 & delta);
-		vec3 & sub(const vec3 & delta);
-		vec3 & mult(const vec3 & delta);
-		vec3 & div(const vec3 & delta);
+		T& operator[](int i) const;
 
-		friend vec3 & operator+(vec3 & left, const vec3 & right);
-		friend vec3 & operator-(vec3 & left, const vec3 & right);
-		friend vec3 & operator*(vec3 & left, const vec3 & right);
-		friend vec3 & operator/(vec3 & left, const vec3 & right);
+		Vector<T, 3>& operator+=(const Vector<T, 3>& vec);
+		Vector<T, 3>& operator-=(const Vector<T, 3>& vec);
 
-		vec3 & operator+=(const vec3 & delta);
-		vec3 & operator-=(const vec3 & delta);
-		vec3 & operator*=(const vec3 & delta);
-		vec3 & operator/=(const vec3 & delta);
-
-		bool operator==(const vec3 & b);
+		Vector<T, 3>& operator+(const Vector<T, 3>& vec);
+		Vector<T, 3>& operator-(const Vector<T, 3>& vec);
 	};
 
-	template <typename T> struct vec
+	template <typename T>
+	struct Vector<T, 4>
 	{
-		
+		union {
+			T x, r, s;
+		};
+		union {
+			T y, g, t;
+		};
+		union {
+			T z, b, p;
+		};
+		union {
+			T w, a, q;
+		};
+
+		Vector<T, 4>& add(const Vector<T, 4>& vec);
+		Vector<T, 4>& sub(const Vector<T, 4>& vec);
+		T dot(const Vector<T, 4>& vec) const;
+		T smag() const;
+
+		T& operator[](int i) const;
+
+		Vector<T, 4>& operator+=(const Vector<T, 4>& vec);
+		Vector<T, 4>& operator-=(const Vector<T, 4>& vec);
+
+		Vector<T, 4>& operator+(const Vector<T, 4>& vec);
+		Vector<T, 4>& operator-(const Vector<T, 4>& vec);
 	};
+
+	typedef Vector<float, 2> vec2;
+	typedef Vector<float, 3> vec3;
+	typedef Vector<float, 4> vec4;
+
+	typedef Vector<double, 2> dvec2;
+	typedef Vector<double, 3> dvec3;
+	typedef Vector<double, 4> dvec4;
+
+	typedef Vector<unsigned char, 2> cvec2;
+	typedef Vector<unsigned char, 3> cvec3;
+	typedef Vector<unsigned char, 4> cvec4;
+
+	typedef Vector<short, 2> svec2;
+	typedef Vector<short, 3> svec3;
+	typedef Vector<short, 4> svec4;
+
+	typedef Vector<int, 2> ivec2;
+	typedef Vector<int, 3> ivec3;
+	typedef Vector<int, 4> ivec4;
 }

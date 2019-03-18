@@ -6,83 +6,386 @@ macros, functions and structs. */
 
 namespace Math
 {
+	/*--------------------------------
+	|                                |
+	|            Vector2             |
+	|                                |
+	--------------------------------*/
 
-	/* VEC2 struct */
-
-	vec2::vec2() : x(0.f), y(0.f) {}
-	vec2::vec2(const float val) : x(val), y(val) {}
-	vec2::vec2(const float _x, const float _y) : x(_x), y(_y) {}
-
-	vec2 & operator+(vec2 & left, const vec2 & right) { return left.add(right); }
-	vec2 & operator-(vec2 & left, const vec2 & right) { return left.sub(right); }
-	vec2 & operator*(vec2 & left, const vec2 & right) { return left.mult(right); }
-	vec2 & operator/(vec2 & left, const vec2 & right) { return left.div(right); }
-
-	vec2 & vec2::operator+=(const vec2 & delta)	{ return add(delta); }
-	vec2 & vec2::operator-=(const vec2 & delta)	{ return sub(delta); }
-	vec2 & vec2::operator*=(const vec2 & delta)	{ return mult(delta); }
-	vec2 & vec2::operator/=(const vec2 & delta)	{ return div(delta); }
-
-	bool vec2::operator==(const vec2 & b)	{ return x == b.x && y == b.y; }
-
-	vec2 & vec2::add(const vec2 & delta)
+	// 'fromAngle' constructs a Vector2 from an angle and length
+	template <typename T>
+	Vector<T, 2> Vector<T, 2>::polar(T angle, T length)
 	{
-		x += delta.x; y += delta.y;
-		return *this;
+		return { (T)(cos(angle) * length), (T)(sin(angle) * length) };
 	}
-	vec2 & vec2::sub(const vec2 & delta)
+
+	// ---- Member functions (Methods) ----
+
+	// 'add' adds each of the given vector's members
+	// to the owner's members and returns a reference
+	// to the newly updated owner
+	template <typename T>
+	Vector<T, 2>& Vector<T, 2>::add(const Vector<T, 2>& vec)
 	{
-		x -= delta.x; y -= delta.y;
-		return *this;
-	}
-	vec2 & vec2::mult(const vec2 & delta)
-	{
-		x *= delta.x; y *= delta.y;
-		return *this;
-	}
-	vec2 & vec2::div(const vec2 & delta)
-	{
-		x /= delta.x; y /= delta.y;
+		x += vec.x;
+		y += vec.y;
 		return *this;
 	}
 
-	/* VEC3 struct */
-
-	vec3::vec3() : x(0.f), y(0.f), z(0.f) {}
-	vec3::vec3(const float & val) : x(val), y(val), z(val) {}
-	vec3::vec3(const float _x, const float _y, const float _z) : x(_x), y(_y), z(_z) {}
-
-	vec3 & operator+(vec3 & left, const vec3 & right) { return left.add(right); }
-	vec3 & operator-(vec3 & left, const vec3 & right) { return left.sub(right); }
-	vec3 & operator*(vec3 & left, const vec3 & right) { return left.mult(right); }
-	vec3 & operator/(vec3 & left, const vec3 & right) { return left.div(right); }
-
-	vec3 & vec3::operator+=(const vec3 & delta) { return add(delta); }
-	vec3 & vec3::operator-=(const vec3 & delta) { return sub(delta); }
-	vec3 & vec3::operator*=(const vec3 & delta) { return mult(delta); }
-	vec3 & vec3::operator/=(const vec3 & delta) { return div(delta); }
-
-	bool vec3::operator==(const vec3 & b) { return x == b.x && y == b.y && z == b.z; }
-
-	vec3 & vec3::add(const vec3 & delta)
+	// 'sub' subtracts each of the given vector's members
+	// from the owner's members and returns a reference
+	// to the newly updated owner
+	template <typename T>
+	Vector<T, 2>& Vector<T, 2>::sub(const Vector<T, 2>& vec)
 	{
-		x += delta.x; y += delta.y; z += delta.z;
+		x -= vec.x;
+		y -= vec.y;
 		return *this;
 	}
-	vec3 & vec3::sub(const vec3 & delta)
+
+	// 'mul' multiplies the components of the vector
+	// by a constant and returns a reference to the
+	// newly updated owner
+	template <typename T>
+	Vector<T, 2>& Vector<T, 2>::mul(const T fac)
 	{
-		x -= delta.x; y -= delta.y; z -= delta.z;
+		x *= fac;
+		y *= fac;
 		return *this;
 	}
-	vec3 & vec3::mult(const vec3 & delta)
+
+	// 'div' divides the components of the vector
+	// by a constant and returns a reference to the
+	// newly updated owner
+	template <typename T>
+	Vector<T, 2>& Vector<T, 2>::div(const T fac)
 	{
-		x *= delta.x; y *= delta.y; z *= delta.z;
+		T one_over_fac = 1.f / fac;
+		x *= one_over_fac;
+		y *= one_over_fac;
 		return *this;
 	}
-	vec3 & vec3::div(const vec3 & delta)
+
+	// 'dot' computes the dot product of this vector
+	// with the provided one and returns the value
+	template <typename T>
+	T Vector<T, 2>::dot(const Vector<T, 2> & vec) const
 	{
-		x /= delta.x; y /= delta.y; z /= delta.z;
+		return x * vec.x + y * vec.y;
+	}
+
+	// 'smag' calculates the length of the vector without
+	// the final step square root which is the most
+	// computationally intensive step. This is intended
+	// to be used when the square root is not needed, such
+	// as in comparisons where the opposing bound is fixed
+	// or can be squared. ex: (myVec.smag() > SQ(2))
+	template <typename T>
+	T Vector<T, 2>::smag() const
+	{
+		return x * x + y * y;
+	}
+
+	// ---- Operators ----
+
+	// operator[] returns the indexed value (i) of the vector
+	template <typename T>
+	T& Vector<T, 2>::operator[](int i) const
+	{
+		// TODO: impliment checking for memory access violations
+		// for i < 0 || i > 1 when in debugging mode. This error
+		// checking should be removed at compile time when releasing
+		// the software as it is unneeded overhead.
+		return *((T*)this + i);
+	}
+
+	// operator+=
+	template <typename T>
+	Vector<T, 2>& Vector<T, 2>::operator+=(const Vector<T, 2> & vec)
+	{
+		return add(vec);
+	}
+
+	// operator-=
+	template <typename T>
+	Vector<T, 2>& Vector<T, 2>::operator-=(const Vector<T, 2> & vec)
+	{
+		return sub(vec);
+	}
+
+	// operator*=
+	template <typename T>
+	Vector<T, 2>& Vector<T, 2>::operator*=(const T fac)
+	{
+		return mul(fac);
+	}
+
+	// operator/=
+	template <typename T>
+	Vector<T, 2>& Vector<T, 2>::operator/=(const T fac)
+	{
+		return div(fac);
+	}
+
+	// These next operators perform copy because it takes two constant
+	// vectors and creates a new one without modifying the originals.
+	// ----------------------------------------------------------------
+	//     example:
+	//
+	//  |  Vector2 a(1.f, 2.f);
+	//  |  Vector2 b(7.f, 3.f);
+	//  |  std::cout << (a + b).x << '\n';
+	//
+	//     one would expect a and b to be unchanged and thus a
+	//     copy is required.
+	// ----------------------------------------------------------------
+
+	// operator+
+	template <typename T>
+	Vector<T, 2>& Vector<T, 2>::operator+(const Vector<T, 2> & vec)
+	{
+		return Vector<T, 2>(*this).add(vec);
+	}
+
+	// operator-
+	template <typename T>
+	Vector<T, 2>& Vector<T, 2>::operator-(const Vector<T, 2> & vec)
+	{
+		return Vector<T, 2>(*this).sub(vec);
+	}
+
+	// operator*
+	template <typename T>
+	Vector<T, 2>& Vector<T, 2>::operator*(const T fac)
+	{
+		return Vector<T, 2>(*this).mul(fac);
+	}
+
+	// operator/
+	template <typename T>
+	Vector<T, 2>& Vector<T, 2>::operator/(const T fac)
+	{
+		return Vector<T, 2>(*this).div(fac);
+	}
+
+	/*--------------------------------
+	|                                |
+	|            Vector3             |
+	|                                |
+	--------------------------------*/
+
+	// ---- Member functions (Methods) ----
+
+	// 'add' adds each of the given vector's members
+	// to the owner's members and returns a reference
+	// to the newly updated owner
+	template <typename T>
+	Vector<T, 3>& Vector<T, 3>::add(const Vector<T, 3> & vec)
+	{
+		x += vec.x;
+		y += vec.y;
+		z += vec.z;
 		return *this;
 	}
+
+	// 'sub' subtracts each of the given vector's members
+	// from the owner's members and returns a reference
+	// to the newly updated owner
+	template <typename T>
+	Vector<T, 3>& Vector<T, 3>::sub(const Vector<T, 3> & vec)
+	{
+		x -= vec.x;
+		y -= vec.y;
+		z -= vec.z;
+		return *this;
+	}
+
+	// 'dot' computes the dot product of this vector
+	// with the provided one and returns the value
+	template <typename T>
+	T Vector<T, 3>::dot(const Vector<T, 3> & vec) const
+	{
+		return x * vec.x + y * vec.y + z * vec.z;
+	}
+
+	// 'cross' applies the cross product of this vector
+	// and the provided vector, changing this vector and
+	// returning a reference to this
+	template <typename T>
+	Vector<T, 3>& Vector<T, 3>::cross(const Vector<T, 3> & vec)
+	{
+		T tx = x, ty = y;
+		x = y * vec.z - z * vec.y;
+		y = z * vec.x - tx * vec.z;
+		z = tx * vec.y - ty * vec.x;
+		return *this;
+	}
+
+	// 'smag' calculates the length of the vector without
+	// the final step square root which is the most
+	// computationally intensive step.
+	template <typename T>
+	T Vector<T, 3>::smag() const
+	{
+		return x * x + y * y + z * z;
+	}
+
+	// ---- Operators ----
+
+	// operator[] returns the indexed value (i) of the vector
+	template <typename T>
+	T& Vector<T, 3>::operator[](int i) const
+	{
+		// TODO: impliment checking for memory access violations
+		// for i < 0 || i > 1 when in debugging mode. This error
+		// checking should be removed at compile time when releasing
+		// the software as it is unneeded overhead.
+		return *((T*)this + i);
+	}
+
+	// operator+=
+	template <typename T>
+	Vector<T, 3>& Vector<T, 3>::operator+=(const Vector<T, 3> & vec)
+	{
+		return add(vec);
+	}
+
+	// operator-=
+	template <typename T>
+	Vector<T, 3>& Vector<T, 3>::operator-=(const Vector<T, 3> & vec)
+	{
+		return sub(vec);
+	}
+
+	// These next operators perform copy because it takes two constant
+	// vectors and creates a new one without modifying the originals.
+
+	// operator+
+	template <typename T>
+	Vector<T, 3>& Vector<T, 3>::operator+(const Vector<T, 3> & vec)
+	{
+		return Vector<T, 3>(*this).add(vec);
+	}
+
+	// operator-
+	template <typename T>
+	Vector<T, 3>& Vector<T, 3>::operator-(const Vector<T, 3> & vec)
+	{
+		return Vector<T, 3>(*this).sub(vec);
+	}
+
+	/*--------------------------------
+	|                                |
+	|            Vector4             |
+	|                                |
+	--------------------------------*/
+
+	// ---- Member functions (Methods) ----
+
+	// 'add' adds each of the given vector's members
+	// to the owner's members and returns a reference
+	// to the newly updated owner
+	template <typename T>
+	Vector<T, 4>& Vector<T, 4>::add(const Vector<T, 4> & vec)
+	{
+		x += vec.x;
+		y += vec.y;
+		z += vec.z;
+		w += vec.w;
+		return *this;
+	}
+
+	// 'sub' subtracts each of the given vector's members
+	// from the owner's members and returns a reference
+	// to the newly updated owner
+	template <typename T>
+	Vector<T, 4>& Vector<T, 4>::sub(const Vector<T, 4> & vec)
+	{
+		y -= vec.y;
+		z -= vec.z;
+		w -= vec.w;
+		return *this;
+	}
+
+	// 'dot' computes the dot product of this vector
+	// with the provided one and returns the value
+	template <typename T>
+	T Vector<T, 4>::dot(const Vector<T, 4> & vec) const
+	{
+		return x * vec.x + y * vec.y + z * vec.z + w * vec.w;
+	}
+
+	// 'smag' calculates the length of the vector without
+	// the final step square root which is the most
+	// computationally intensive step
+	template <typename T>
+	T Vector<T, 4>::smag() const
+	{
+		return x * x + y * y + z * z + w * w;
+	}
+
+	// ---- Operators ----
+
+	// operator[] returns the indexed value (i) of the vector
+	template <typename T>
+	T& Vector<T, 4>::operator[](int i) const
+	{
+		// TODO: impliment checking for memory access violations
+		// for i < 0 || i > 1 when in debugging mode. This error
+		// checking should be removed at compile time when releasing
+		// the software as it is unneeded overhead.
+		return *((T*)this + i);
+	}
+
+	// operator+=
+	template <typename T>
+	Vector<T, 4>& Vector<T, 4>::operator+=(const Vector<T, 4> & vec)
+	{
+		return add(vec);
+	}
+
+	// operator-=
+	template <typename T>
+	Vector<T, 4>& Vector<T, 4>::operator-=(const Vector<T, 4> & vec)
+	{
+		return sub(vec);
+	}
+
+	// These next operators perform copy because it takes two constant
+	// vectors and creates a new one without modifying the originals.
+
+	// operator+
+	template <typename T>
+	Vector<T, 4>& Vector<T, 4>::operator+(const Vector<T, 4> & vec)
+	{
+		return Vector<T, 4>(*this).add(vec);
+	}
+
+	// operator-
+	template <typename T>
+	Vector<T, 4>& Vector<T, 4>::operator-(const Vector<T, 4> & vec)
+	{
+		return Vector<T, 4>(*this).sub(vec);
+	}
+
+	template struct Vector<float, 2>;
+	template struct Vector<float, 3>;
+	template struct Vector<float, 4>;
+
+	template struct Vector<double, 2>;
+	template struct Vector<double, 3>;
+	template struct Vector<double, 4>;
+
+	template struct Vector<unsigned char, 2>;
+	template struct Vector<unsigned char, 3>;
+	template struct Vector<unsigned char, 4>;
+
+	template struct Vector<short, 2>;
+	template struct Vector<short, 3>;
+	template struct Vector<short, 4>;
+
+	template struct Vector<int, 2>;
+	template struct Vector<int, 3>;
+	template struct Vector<int, 4>;
 
 }
