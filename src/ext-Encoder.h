@@ -112,6 +112,18 @@ public:
 		interrupts();
 		return ret;
 	}
+	inline int32_t readAndReset() {
+		if (interrupts_in_use < 2) {
+			noInterrupts();
+			update(&encoder);
+		} else {
+			noInterrupts();
+		}
+		int32_t ret = encoder.position;
+		encoder.position = 0;
+		interrupts();
+		return ret;
+	}
 	inline void write(int32_t p) {
 		noInterrupts();
 		encoder.position = p;
@@ -121,6 +133,12 @@ public:
 	inline int32_t read() {
 		update(&encoder);
 		return encoder.position;
+	}
+	inline int32_t readAndReset() {
+		update(&encoder);
+		int32_t ret = encoder.position;
+		encoder.position = 0;
+		return ret;
 	}
 	inline void write(int32_t p) {
 		encoder.position = p;
@@ -181,7 +199,10 @@ public:
 	}
 */
 
-private:
+public:
+	// update() is not meant to be called from outside Encoder,
+	// but it is public to allow static interrupt routines.
+	// DO NOT call update() directly from sketches.
 	static void update(Encoder_internal_state_t *arg) {
 #if defined(__AVR__)
 		// The compiler believes this is just 1 line of code, so
@@ -290,6 +311,7 @@ private:
 		}
 #endif
 	}
+private:
 /*
 #if defined(__AVR__)
 	// TODO: this must be a no inline function
@@ -936,6 +958,11 @@ ISR(INT6_vect) { Encoder::update(Encoder::interruptArgs[SCRAMBLE_INT_ORDER(6)]);
 ISR(INT7_vect) { Encoder::update(Encoder::interruptArgs[SCRAMBLE_INT_ORDER(7)]); }
 #endif
 #endif // AVR
+#if defined(attachInterrupt)
+// Don't intefere with other libraries or sketch use of attachInterrupt()
+// https://github.com/PaulStoffregen/Encoder/issues/8
+#undef attachInterrupt
+#endif
 #endif // ENCODER_OPTIMIZE_INTERRUPTS
 
 

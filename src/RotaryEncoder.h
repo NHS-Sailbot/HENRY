@@ -12,9 +12,11 @@ private:
 	byte m_position, m_flagA, m_flagB;
 
 public:
+	RotaryEncoder();
 	RotaryEncoder(unsigned char pin_a, unsigned char pin_b);
 	~RotaryEncoder() {}
 
-	void RotaryEncoder::update();
+	bool init(unsigned char pin_a, unsigned char pin_b);
+	void update();
 };
 } // namespace HENRY

@@ -2,8 +2,6 @@
 
 namespace HENRY
 {
-// TODO: Add usage documentation.
-
 bool GPS::init()
 {
 	// Begin the debugging serial "Serial" on 9600

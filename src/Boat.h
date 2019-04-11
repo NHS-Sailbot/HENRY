@@ -1,6 +1,8 @@
 #pragma once
-#include "GPS.h"
 #include "Magnetometer.h"
+#include "RotaryEncoder.h"
+#include "Motor.h"
+#include "GPS.h"
 
 namespace HENRY
 {
@@ -16,18 +18,21 @@ struct BoatProperties
 enum INIT
 {
 	NONE = 0,
-	BNO_FAIL = 1 << 0,
-	GPS_FAIL = 1 << 1,
-	ROT_FAIL = 1 << 2,
-	SUCCESS = 1 << 3
+	MAG_FAIL = 1 << 0,
+	ROT_FAIL = 1 << 1,
+	MOT_FAIL = 1 << 2,
+	GPS_FAIL = 1 << 3,
+	SUCCESS = 1 << 4
 };
 
 // Boat
 class Boat
 {
 	BoatProperties *m_prop;
-	GPS m_gps;
 	Magnetometer m_mag;
+	RotaryEncoder m_rot;
+	Motor m_mot1, m_mot2;
+	GPS m_gps;
 
 	bool m_isTrackingPoints;
 	Math::dvec2 *m_trackPoints;
@@ -41,7 +46,7 @@ public:
 	Boat(BoatProperties *prop);
 	~Boat() {}
 
-	unsigned int init();
+	unsigned char init();
 	void update();
 
 	inline Math::dvec2 &getPos() { return m_gps.getCoord(); }

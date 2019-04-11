@@ -10,8 +10,10 @@ class Magnetometer
 	Adafruit_BNO055 m_mag;
 	Math::dvec3 m_rot;
 
-  public:
+public:
 	Magnetometer();
+	~Magnetometer() {}
+
 	bool init();
 	void update();
 	inline Math::dvec3 &getRot() { return m_rot; }

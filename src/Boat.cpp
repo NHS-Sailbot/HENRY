@@ -22,10 +22,19 @@ void Boat::sailTowards(Math::dvec2 &point)
 	}
 }
 
-unsigned int Boat::init()
+unsigned char Boat::init()
 {
 	if (!m_mag.init())
-		return INIT::BNO_FAIL;
+		return INIT::MAG_FAIL;
+
+	if (!m_rot.init(0, 0))
+		return INIT::ROT_FAIL;
+
+	if (!m_mot1.init(0, 0))
+		return INIT::MOT_FAIL;
+
+	if (!m_mot2.init(0, 0))
+		return INIT::MOT_FAIL;
 
 	if (!m_gps.init())
 		return INIT::GPS_FAIL;

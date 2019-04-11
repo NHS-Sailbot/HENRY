@@ -2,21 +2,25 @@
 
 namespace HENRY
 {
-Motor::Motor(unsigned short pin_a, unsigned short pin_b)
-	: m_pinA(pin_a), m_pinB(pin_b)
+Motor::Motor()
+	: m_pinA(0), m_pinB(0)
 {
-	// Set the pinmode for the motors pins
-	pinMode(m_pinA, OUTPUT);
-	pinMode(m_pinB, OUTPUT);
 }
 
-void Motor::init(unsigned short pin_a, unsigned short pin_b)
+Motor::Motor(unsigned char pin_a, unsigned char pin_b)
+	: m_pinA(pin_a), m_pinB(pin_b)
 {
-	// assign new pins and init
+}
+
+bool Motor::init(unsigned char pin_a, unsigned char pin_b)
+{
+	if (pin_a == pin_b)
+		return false;
 	m_pinA = pin_a;
 	m_pinB = pin_b;
 	pinMode(pin_a, OUTPUT);
 	pinMode(pin_b, OUTPUT);
+	return true;
 }
 
 void Motor::update()
