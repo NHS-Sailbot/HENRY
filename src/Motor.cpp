@@ -25,5 +25,7 @@ bool Motor::init(unsigned char pin_a, unsigned char pin_b)
 
 void Motor::update()
 {
+	setPow(255);
+	setDir(HIGH);
 }
 } // namespace HENRY

@@ -24,22 +24,28 @@ void Boat::sailTowards(Math::dvec2 &point)
 
 unsigned char Boat::init()
 {
-	if (!m_mag.init())
-		return INIT::MAG_FAIL;
+	// if (!m_mag.init())
+	// 	return INIT::MAG_FAIL;
 
-	if (!m_rot.init(0, 0))
-		return INIT::ROT_FAIL;
+	// if (!m_rot.init(0, 0))
+	// 	return INIT::ROT_FAIL;
 
-	if (!m_mot1.init(0, 0))
+	if (!m_mot1.init(2, 3))
 		return INIT::MOT_FAIL;
 
-	if (!m_mot2.init(0, 0))
-		return INIT::MOT_FAIL;
+	// if (!m_mot2.init(0, 0))
+	// 	return INIT::MOT_FAIL;
 
-	if (!m_gps.init())
-		return INIT::GPS_FAIL;
+	// if (!m_gps.init())
+	// 	return INIT::GPS_FAIL;
 
 	return INIT::SUCCESS;
+}
+
+unsigned char Boat::init(BoatProperties *prop)
+{
+	m_prop = prop;
+	return init();	
 }
 
 void Boat::update()
@@ -47,6 +53,8 @@ void Boat::update()
 	m_mag.update();
 	m_gps.update();
 
+	m_mot1.update();
+	
 	if (m_isTrackingPoints)
 		sailTowards(m_trackPoints[m_currentTrackPoint]);
 }

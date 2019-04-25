@@ -13,6 +13,7 @@ namespace HENRY
 struct BoatProperties
 {
 	// all necessary properties should be set in here.
+	float noSailZoneAngle;
 };
 
 enum INIT
@@ -43,10 +44,13 @@ class Boat
 	void setRudder(float value) {}
 
 public:
-	Boat(BoatProperties *prop);
+	Boat() {}
 	~Boat() {}
+	
+	Boat(BoatProperties *prop);
 
 	unsigned char init();
+	unsigned char init(BoatProperties *prop);
 	void update();
 
 	inline Math::dvec2 &getPos() { return m_gps.getCoord(); }
