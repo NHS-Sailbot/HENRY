@@ -2,30 +2,49 @@
 
 namespace HENRY
 {
+static void motorInterrupt()
+{
+}
+
 Motor::Motor()
-	: m_pinA(0), m_pinB(0)
+	: m_pinPWM(0), m_pinDIR(0), m_pinInA(0), m_pinInB(0)
 {
 }
 
-Motor::Motor(unsigned char pin_a, unsigned char pin_b)
-	: m_pinA(pin_a), m_pinB(pin_b)
+Motor::Motor(unsigned char pin_pwm, unsigned char pin_dir)
 {
+	init(pin_pwm, pin_dir);
 }
 
-bool Motor::init(unsigned char pin_a, unsigned char pin_b)
+bool Motor::init(unsigned char pin_pwm, unsigned char pin_dir)
 {
-	if (pin_a == pin_b)
+	if (pin_pwm == pin_dir)
 		return false;
-	m_pinA = pin_a;
-	m_pinB = pin_b;
-	pinMode(pin_a, OUTPUT);
-	pinMode(pin_b, OUTPUT);
+	m_pinPWM = pin_pwm, m_pinDIR = pin_dir;
+	pinMode(pin_pwm, OUTPUT);
+	pinMode(pin_dir, OUTPUT);
+
+	m_pinInA = 3, m_pinInB = 4;
+	pinMode(m_pinInA, INPUT);
+	pinMode(m_pinInB, INPUT);
 	return true;
 }
 
 void Motor::update()
 {
-	setPow(255);
-	setDir(HIGH);
+	if (digitalRead(m_pinInA) == HIGH)
+	{
+		if (digitalRead(m_pinInB) == LOW)
+			m_currPos++;
+		else
+			m_currPos--;
+	}
+	else
+	{
+		if (digitalRead(m_pinInB) == LOW)
+			m_currPos--;
+		else
+			m_currPos++;
+	}
 }
 } // namespace HENRY
