@@ -1,27 +1,17 @@
 #pragma once
+
 #include <Arduino.h>
+#include "internal.h"
 
-#define HENRY_CREATE_MOTOR_INTERRUPT(motName, funcName) \
-	void funcName() { motName.update(); }
-#define HENRY_ATTACH_MOTOR_INTERRUPT(num, funcName) \
-	attachInterrupt(num, funcName, CHANGE)
-
-namespace HENRY
-{
-class Motor
-{
-	long m_currPos;
-	unsigned char m_pinPWM, m_pinDIR, m_pinInA, m_pinInB;
-
-public:
-	Motor();
-	Motor(unsigned char pin_a, unsigned char pin_b);
-
-	bool init(unsigned char pin_a, unsigned char pin_b);
-	void update();
-
-	inline void setPow(unsigned int pow) { analogWrite(m_pinPWM, pow); }
-	inline void setDir(unsigned int dir) { digitalWrite(m_pinDIR, dir); }
-	inline long getPos() { return m_currPos; }
-};
+namespace HENRY {
+	struct MotorData {
+		byte pinPWM, pinDir, pinInA, pinInB;
+		long currPos;
+	};
+	namespace Motor {
+		uint init(MotorData &m, byte pin_pwm, byte pin_dir);
+		void update(MotorData &m);
+		inline void setPow(const MotorData &m, uint pow) { analogWrite(m.pinPWM, pow); }
+		inline void setDir(const MotorData &m, byte dir) { digitalWrite(m.pinDir, dir); }
+	} // namespace Motor
 } // namespace HENRY

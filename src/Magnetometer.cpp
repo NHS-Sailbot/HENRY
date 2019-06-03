@@ -1,27 +1,24 @@
 #include "Magnetometer.h"
+#include <Adafruit_BNO055.h>
 
-namespace HENRY
-{
-Magnetometer::Magnetometer()
-	: m_rot{0, 0, 0}
-{
-}
-
-bool Magnetometer::init()
-{
-	if (!m_mag.begin())
-		return false;
-	delay(100);
-	m_mag.setExtCrystalUse(false);
-	return true;
-}
-
-void Magnetometer::update()
-{
-	sensors_event_t event;
-	m_mag.getEvent(&event);
-	m_rot = {event.orientation.x,
-			 event.orientation.y,
-			 event.orientation.z};
-}
+namespace HENRY {
+	namespace Magnetometer {
+		static Adafruit_BNO055 s_mag;
+		uint init()
+		{
+			if (!s_mag.begin())
+				return false;
+			delay(100);
+			s_mag.setExtCrystalUse(false);
+			return true;
+		}
+		Math::dvec3 getRot()
+		{
+			sensors_event_t event;
+			s_mag.getEvent(&event);
+			return {event.orientation.x,
+				event.orientation.y,
+				event.orientation.z};
+		}
+	} // namespace Magnetometer
 } // namespace HENRY
