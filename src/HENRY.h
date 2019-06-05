@@ -7,6 +7,7 @@
 #include "Boat.h"
 #include "RotaryEncoder.h"
 #include "RemoteControl.h"
+#include "NeoPixelStrip.h"
 
 namespace HENRY {
 	bool Ascii_ISO_3D(const char *message);

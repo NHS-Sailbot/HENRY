@@ -162,7 +162,7 @@ namespace HENRY {
 			// Rotary Encoder
 
 			Serial.print("Rotary Encoder: (");
-			Serial.print(RotaryEncoder::getValue());
+			Serial.print((int)RotaryEncoder::getValue());
 			Serial.println(")");
 
 			// Magnetometer
@@ -175,10 +175,11 @@ namespace HENRY {
 			Serial.print(") (z: ");
 			Serial.print(rot.z);
 			Serial.println(")");
+			Serial.println("--------------------------------------------------------------------------");
 
 			// Motor XXXX
 
-			millisOffset = millis();
+			millisOffset += 1000;
 		}
 	}
 } // namespace HENRY

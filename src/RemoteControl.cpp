@@ -35,7 +35,6 @@ namespace HENRY {
 		int getControlMode()
 		{
 			return pulseIn(10, HIGH, 25000);
-			return RemoteControl::Mode::Remote;
 		} // figure out what pins to use
 	} // namespace RemoteControl
 } // namespace HENRY
