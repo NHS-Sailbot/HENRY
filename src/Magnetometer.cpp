@@ -1,5 +1,6 @@
 #include "Magnetometer.h"
 #include <Adafruit_BNO055.h>
+#include <utility/quaternion.h>
 
 namespace HENRY {
 	namespace Magnetometer {
@@ -14,11 +15,9 @@ namespace HENRY {
 		}
 		Math::dvec3 getRot()
 		{
-			sensors_event_t event;
-			s_mag.getEvent(&event);
-			return {event.orientation.x,
-				event.orientation.y,
-				event.orientation.z};
+			imu::Quaternion quat = s_mag.getQuat();
+			auto v = quat.toEuler();
+			return {v.x(), v.y(), v.z()};
 		}
 	} // namespace Magnetometer
 } // namespace HENRY

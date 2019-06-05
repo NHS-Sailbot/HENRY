@@ -5,6 +5,6 @@
 namespace HENRY {
 	namespace RotaryEncoder {
 		uint init();
-		int getValue();
+		float getValue();
 	} // namespace RotaryEncoder
 } // namespace HENRY

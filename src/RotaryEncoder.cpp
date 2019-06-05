@@ -3,40 +3,40 @@
 
 namespace HENRY {
 	namespace RotaryEncoder {
-		static byte s_pinA = 2, s_pinB = 3; // These have to be 2 and 3 for some reason.
-		int encoderValue = 0, lastEncoded = 0;
+		// pin A -> digital in
+		// pin B -> clock
+		// pin C -> digital out
+		// pin D -> chip select
 
-		void internal_RotaryCallback()
-		{
-			int MSB = digitalRead(s_pinA); //MSB = most significant bit
-			int LSB = digitalRead(s_pinB); //LSB = least significant bit
-			int encoded = (MSB << 1) | LSB;
-			int sum = (lastEncoded << 2) | encoded;
-			if (sum == 0b1101 || sum == 0b0100 || sum == 0b0010 || sum == 0b1011)
-				encoderValue++;
-			if (sum == 0b1110 || sum == 0b0111 || sum == 0b0001 || sum == 0b1000)
-				encoderValue--;
-			lastEncoded = encoded;
-		}
+		// rotary encoder digital input: 26; clock: 24; cable select: 28 pin 3->GND 5->VCC
+
+		constexpr static const byte pinData = 6, pinClock = 5, pinCS = 7;
+		constexpr static const float encoderToRadiansRatio = 0.00613592315;
+		static int encoderValue = 0;
+
 		uint init()
 		{
-			if (s_pinA == s_pinB)
-				return false;
-			pinMode(s_pinA, INPUT_PULLUP);
-			pinMode(s_pinB, INPUT_PULLUP);
-
-			//This part may not be needed//
-			digitalWrite(s_pinA, HIGH); //turn pullup resistor on
-			digitalWrite(s_pinB, HIGH); //turn pullup resistor on
-
-			attachInterrupt(0, &internal_RotaryCallback, CHANGE);
-			attachInterrupt(1, &internal_RotaryCallback, CHANGE);
+			pinMode(pinCS, OUTPUT);
+			pinMode(pinClock, OUTPUT);
+			pinMode(pinData, INPUT);
+			digitalWrite(pinClock, HIGH);
+			digitalWrite(pinCS, LOW);
 			return true;
 		}
-		int getValue()
+		float getValue()
 		{
-			return encoderValue;
+			digitalWrite(pinCS, HIGH);
+			digitalWrite(pinCS, LOW);
+			encoderValue = 0;
+			for (int i = 0; i < 10; i++) {
+				digitalWrite(pinClock, LOW);
+				digitalWrite(pinClock, HIGH);
+				byte b = digitalRead(pinData) == HIGH ? 1 : 0;
+				encoderValue += b * pow(2, 10 - (i + 1));
+			}
+			digitalWrite(pinClock, LOW);
+			digitalWrite(pinClock, HIGH);
+			return float(encoderValue) * encoderToRadiansRatio;
 		}
-
 	} // namespace RotaryEncoder
 } // namespace HENRY

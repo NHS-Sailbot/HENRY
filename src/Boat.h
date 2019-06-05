@@ -2,6 +2,7 @@
 
 #include "internal.h"
 #include "Vector.h"
+#include <Servo.h>
 
 namespace HENRY {
 	enum INIT {

@@ -136,4 +136,49 @@ namespace HENRY {
 		Serial.print("\n");
 		return 0;
 	}
+
+	static unsigned long millisOffset = 0;
+	void printInfo()
+	{
+		if (millis() - millisOffset > 1000) {
+			// RC
+
+			Serial.print("Remote Control: (control mode: ");
+			Serial.print(HENRY::RemoteControl::getControlMode());
+			Serial.print(") (Left stick: ");
+			Serial.print(HENRY::RemoteControl::getLeftStick());
+			Serial.print(") (Right stick: ");
+			Serial.print(HENRY::RemoteControl::getRightStick());
+			Serial.println(")");
+
+			// // GPS
+
+			Serial.print("GPS: (Longitude: ");
+			Serial.print(HENRY::GPS::getLongitude());
+			Serial.print(") (Latitude: ");
+			Serial.print(HENRY::GPS::getLatitude());
+			Serial.println(")");
+
+			// Rotary Encoder
+
+			Serial.print("Rotary Encoder: (");
+			Serial.print(RotaryEncoder::getValue());
+			Serial.println(")");
+
+			// Magnetometer
+
+			Math::dvec3 rot = HENRY::Magnetometer::getRot();
+			Serial.print("Magnetometer: (x: ");
+			Serial.print(rot.x);
+			Serial.print(") (y: ");
+			Serial.print(rot.y);
+			Serial.print(") (z: ");
+			Serial.print(rot.z);
+			Serial.println(")");
+
+			// Motor XXXX
+
+			millisOffset = millis();
+		}
+	}
 } // namespace HENRY

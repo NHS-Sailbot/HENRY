@@ -5,17 +5,37 @@ namespace HENRY {
 	namespace RemoteControl {
 		int init()
 		{
-			pinMode(2, INPUT); // ask Camden about pins
-			pinMode(3, INPUT); // analog pwm pins
-			pinMode(4, INPUT); // analog pwm pins
-			pinMode(5, INPUT); // analog pwm pins
-			pinMode(6, INPUT); // analog pwm pins
+			pinMode(9, INPUT);
+			pinMode(10, INPUT);
+			pinMode(11, INPUT);
 			return 1;
 		}
-		int getLeftHoriz() { return pulseIn(2, HIGH, 25000); } // figure out what pins to use
-		int getLeftVert() { return pulseIn(3, HIGH, 25000); } // figure out what pins to use
-		int getRightHoriz() { return pulseIn(4, HIGH, 25000); } // figure out what pins to use
-		int getRightVert() { return pulseIn(5, HIGH, 25000); } // figure out what pins to use
-		int getControlMode() { return pulseIn(6, HIGH, 25000); } // figure out what pins to use
+		static float lastLeftReading = 0.5;
+		float getLeftStick()
+		{
+			float result = float(pulseIn(9, HIGH, 25000));
+			if (result > 1 || result < 0)
+				return result;
+			else {
+				lastLeftReading = result;
+				return result;
+			}
+		}
+		static float lastRightReading = 0.5;
+		float getRightStick()
+		{
+			float result = float(pulseIn(10, HIGH, 25000));
+			if (result > 1 || result < 0)
+				return result;
+			else {
+				lastRightReading = result;
+				return result;
+			}
+		}
+		int getControlMode()
+		{
+			return pulseIn(10, HIGH, 25000);
+			return RemoteControl::Mode::Remote;
+		} // figure out what pins to use
 	} // namespace RemoteControl
 } // namespace HENRY

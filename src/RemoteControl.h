@@ -2,11 +2,14 @@
 
 namespace HENRY {
 	namespace RemoteControl {
+		enum Mode {
+			Off,
+			Remote,
+			Auto
+		};
 		int init();
-		int getLeftHoriz();
-		int getLeftVert();
-		int getRightHoriz();
-		int getRightVert();
+		float getLeftStick();
+		float getRightStick();
 		int getControlMode();
 	} // namespace RemoteControl
 } // namespace HENRY
