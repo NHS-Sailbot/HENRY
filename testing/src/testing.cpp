@@ -1,6 +1,7 @@
 #include <sailbot.hpp>
+#include <cstdio>
 
 int main() {
     math::iVec2 v1 = {1, 1};
-    return v1.x + v1.y;
+    printf("%d, %d\n", v1.x, v1.y);
 }

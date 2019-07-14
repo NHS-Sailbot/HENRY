@@ -7,7 +7,7 @@ Makefile
 *.user
 *.filters
 *.vcxproj
-/Build/bin
+/build/bin
 
 *.exe
 *.o
