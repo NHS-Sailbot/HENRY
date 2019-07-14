@@ -1,0 +1,3 @@
+[submodule "sailbot/dep/math"]
+	path = sailbot/dep/math
+	url = https://github.com/GabeRundlett/math
