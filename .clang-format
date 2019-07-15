@@ -2,7 +2,6 @@ Language: Cpp
 BasedOnStyle: LLVM
 IndentWidth: 4
 AccessModifierOffset: -2
-NamespaceIndentation: All
 SortUsingDeclarations: false
 NamespaceIndentation: Inner
 CompactNamespaces: true
