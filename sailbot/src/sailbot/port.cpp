@@ -1,11 +1,12 @@
 #include <cstdio>
 
+namespace sailbot { namespace comm {
+#ifndef _CONFIG_PLATFORM_WINDOWS
 #include <sys/file.h>
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
 
-namespace sailbot { namespace comm {
     constexpr static const unsigned int PORT_COUNT = 38;
     constexpr static const char *DEVICE_FILE[PORT_COUNT] = {
         "/dev/ttyS0",   "/dev/ttyS1",   "/dev/ttyS2",   "/dev/ttyS3",   "/dev/ttyS4",   "/dev/ttyS5",   "/dev/ttyS6",
@@ -21,7 +22,7 @@ namespace sailbot { namespace comm {
     static int file_id[PORT_COUNT];
     static termios port_settings, old_port_settings[PORT_COUNT];
 
-    int open_device(unsigned int port) {
+    int open_device(const unsigned int port) {
         file_id[port] = open(DEVICE_FILE[port], O_RDWR | O_NOCTTY | O_NDELAY);
         if (file_id[port] == -1)
             return UNABLE_TO_OPEN_PORT;
@@ -66,7 +67,14 @@ namespace sailbot { namespace comm {
         return 0;
     }
 
-    int open_device_err(unsigned int port) {
+    void write_buffer(const unsigned int port, const void *data, const unsigned int size) { write(file_id[port], data, size); }
+    void read_device(const unsigned int port, void *data, const unsigned int size) { read(file_id[port], data, size); }
+
+#else
+    void write_buffer(const unsigned int port, const void *data, const unsigned int size) {}
+    void read_device(const unsigned int port, void *data, const unsigned int size) {}
+#endif
+    int open_device_err(const unsigned int port) {
         switch (open_device(port)) {
         case UNABLE_TO_OPEN_PORT:
             printf("unable to open port %d (%s)\n", port, DEVICE_FILE[port]);

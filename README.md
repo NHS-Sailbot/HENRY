@@ -12,7 +12,9 @@ To build the files:
     - type `./build/build.sh` [how this could go wrong]()
 - Windows: 
     - open the `build` folder
-    - double click the file `build.bat` [how this could go wrong]()
+    - double click the file `build.bat` to generate the Visual Studio solution [how this could go wrong]()
+
+[more information on building from source](https://github.com/NHS-Sailbot/HENRY/tree/master/docs/BuildingFromSource.md)
 
 ## Example:
 
