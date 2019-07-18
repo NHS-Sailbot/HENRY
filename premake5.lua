@@ -1,4 +1,4 @@
-workspace "testing"
+workspace "HENRY"
 	architecture "x64"
 	configurations { "Debug", "DebugOptimized", "Release" }
 	
