@@ -1,10 +1,8 @@
 # HENRY
-
 HENRY is the public Github Repository created and maintained by the NHS Sailbot team. The [Documentation](https://github.com/NHS-Sailbot/HENRY/tree/master/docs) contains all the necessary information to understand the codebase's structure and functionality.
 
 ## Using the Sailbot library:
-
-The Sailbot library uses a build system called [Premake](https://premake.github.io/), who's binaries are located in the build folder of this repository. To create a program with this, simply add your source files to the testing/src folder and include the library. [A further explaination of this](https://github.com/NHS-Sailbot/HENRY/tree/master/docs/Premake) can be found in the Documentation.
+The Sailbot library uses a build system called [Premake](https://premake.github.io/), who's binaries are located in the build folder of this repository. To create a program with this, simply add your source files to the testing/src folder and include the library. [A further explaination of this](https://github.com/NHS-Sailbot/HENRY/tree/master/docs/WritingAPremakeScript) can be found in the Documentation.
 
 ## To build the files:
 - Linux:
@@ -20,37 +18,65 @@ The Sailbot library uses a build system called [Premake](https://premake.github.
 
 ### [testing/src/main.cpp]
 ```cpp
+#include <iostream>
 #include <sailbot.hpp>
 
+struct TData {
+    char bytes[9];
+    float floats[3];
+};
+
+struct RData {
+    unsigned short words[3];
+    char bytes[8];
+};
+
+void print_data(const RData &d) {
+    std::cout << d.bytes << ' ';
+    for (unsigned int i = 0; i < 3; ++i)
+        std::cout << d.words[i] << ' ';
+    std::cout << '\n';
+}
+
+TData tdata = {"Computer", {0.4, 0.5, 0.6}};
+RData rdata;
+
 int main() {
-    sailbot::comm::open_device(16);
-    return 0;
+    sailbot::system::init();
+
+    while (sailbot::system::update()) {
+        if (sailbot::system::should_tick()) {
+            sailbot::system::handshake(&tdata, sizeof(TData), &rdata, sizeof(RData));
+            print_data(rdata);
+        }
+    }
 }
 ```
 ### [.../test.ino]
 ```cpp
-void setup() {
-    Serial.begin(57600);
-}
-
-struct Data {
-    char letters[4];
-    unsigned int integer;
-    float decimal;
+struct RData {
+    char bytes[9];
+    float floats[3];
 };
 
-constexpr static const unsigned int DATA_SIZE = sizeof(Data);
+struct TData {
+    unsigned short words[3];
+    char bytes[8];
+};
+
+void setup() {
+  Serial.begin(57600);
+}
+
+TData tdata = {{1, 2, 3}, "Arduino"};
+RData rdata;
 
 void loop() {
-    unsigned char buff[DATA_SIZE];
-    unsigned char index = 0;
-    while (Serial.available() > 0) {
-        const unsigned char byte_read = Serial.read();
-        Serial.write(byte_read);
-        buff[index] = byte_read;
-        index++;
-    }
-    Data data = *reinterpret_cast<Data *>(buff);
-    Serial.println(data.number);
+  while (Serial.available() > 0) {
+    Serial.readBytes(reinterpret_cast<unsigned char *>(&rdata), sizeof(RData));
+    for (unsigned int i = 0; i < sizeof(TData); ++i)
+      Serial.write(*(reinterpret_cast<unsigned char *>(&tdata) + i));
+  }
+  Serial.flush();
 }
 ```

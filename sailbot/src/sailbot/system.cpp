@@ -3,7 +3,7 @@
 #include <iostream>
 
 namespace sailbot { namespace system {
-#ifndef _PLATFORM_WINDOWS
+#ifndef _CONFIG_PLATFORM_WINDOWS
     constexpr unsigned int PORT = 19, BAUD_RATE = 57600;
 #else
     constexpr unsigned int PORT = 2, BAUD_RATE = 57600;
@@ -14,7 +14,7 @@ namespace sailbot { namespace system {
         return result;
     }
     bool update() { return true; }
-    constexpr static double TICK_DURATION = 1.0 / 10;
+    constexpr static double TICK_DURATION = 1.0 / 20;
     static double s_current_time = 0, s_total_tick_time = 0;
     static unsigned long long s_total_tick_count = 0;
     static bool s_transmission_switch = true;
