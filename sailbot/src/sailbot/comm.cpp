@@ -1,3 +1,4 @@
+#include "timing.hpp"
 #include <cstdio>
 
 namespace sailbot { namespace comm {
@@ -159,13 +160,18 @@ namespace sailbot { namespace comm {
             flock(file_id[port], LOCK_UN);
             return UNABLE_TO_SET_PORT_STATUS;
         }
+
+        timing::sleep(1.f);
+        tcflush(fd, TCIOFLUSH);
+
         return 0;
     }
 
     void write_buffer(const unsigned int port, const void *data, const unsigned int size) { write(file_id[port], data, size); }
-    void read_device(const unsigned int port, void *data, const unsigned int size) { read(file_id[port], data, size); }
+    void read_buffer(const unsigned int port, void *data, const unsigned int size) { read(file_id[port], data, size); }
 
 #else
+#include "comm.hpp"
 #include <Windows.h>
     constexpr static const char *DEVICE_FILE[PORT_COUNT] = {
         "\\\\.\\COM1",  "\\\\.\\COM2",  "\\\\.\\COM3",  "\\\\.\\COM4",  "\\\\.\\COM5",  "\\\\.\\COM6",  "\\\\.\\COM7",
@@ -275,13 +281,16 @@ namespace sailbot { namespace comm {
             return UNABLE_TO_GET_PORT_STATUS;
         }
 
+        timing::sleep(1.f);
+        PurgeComm(file_id[port], PURGE_RXCLEAR | PURGE_TXCLEAR);
+
         return SUCCESS;
     }
     void write_buffer(const unsigned int port, const void *data, const unsigned int size) {
         int passthrough;
         WriteFile(file_id[port], data, size, reinterpret_cast<LPDWORD>(&passthrough), NULL);
     }
-    void read_device(const unsigned int port, void *data, const unsigned int size) {
+    void read_buffer(const unsigned int port, void *data, const unsigned int size) {
         int passthrough;
         ReadFile(file_id[port], data, size, reinterpret_cast<LPDWORD>(&passthrough), NULL);
     }
