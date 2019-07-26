@@ -3,9 +3,13 @@
 #include <iostream>
 
 namespace sailbot { namespace system {
+#ifndef _PLATFORM_WINDOWS
+    constexpr unsigned int PORT = 19, BAUD_RATE = 57600;
+#else
     constexpr unsigned int PORT = 2, BAUD_RATE = 57600;
+#endif
     int init() {
-        const int result = sailbot::comm::open_device(PORT, BAUD_RATE);
+        const int result = sailbot::comm::open_device_err(PORT, BAUD_RATE);
         clock::reset();
         return result;
     }

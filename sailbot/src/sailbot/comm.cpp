@@ -162,7 +162,7 @@ namespace sailbot { namespace comm {
         }
 
         timing::sleep(1.f);
-        tcflush(fd, TCIOFLUSH);
+        tcflush(file_id[port], TCIOFLUSH);
 
         return 0;
     }
