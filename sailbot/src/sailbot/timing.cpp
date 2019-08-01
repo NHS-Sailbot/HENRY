@@ -4,16 +4,13 @@
 
 namespace sailbot { namespace timing {
     void sleep(double seconds) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long long>(seconds * 1000)));
+        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<long long>(seconds * 1000.0)));
     }
 }} // namespace sailbot::timing
 
 namespace sailbot { namespace clock {
-    std::chrono::time_point<std::chrono::steady_clock> start;
-    void reset() { start = std::chrono::steady_clock::now(); }
-    double now() {
-        return static_cast<double>(
-                   std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - start).count()) /
-               1000000;
-    }
+    using namespace std::chrono;
+    time_point<steady_clock> start;
+    void reset() { start = steady_clock::now(); }
+    double now() { return duration_cast<microseconds>(steady_clock::now() - start).count() / 1000000.0; }
 }} // namespace sailbot::clock

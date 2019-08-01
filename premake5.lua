@@ -6,6 +6,7 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 inc = {}
 inc["sailbot"] = "%{wks.location}/sailbot/src"
 
-startproject "testing"
+startproject "main"
 include "sailbot"
-include "testing"
+include "main"
+include "test"

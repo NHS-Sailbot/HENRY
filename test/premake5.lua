@@ -1,4 +1,4 @@
-project "testing"
+project "test"
 	kind "ConsoleApp"
 	language "C++"
 	targetdir("%{wks.location}/build/bin/" .. outputdir .. "/%{prj.name}")

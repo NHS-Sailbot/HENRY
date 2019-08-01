@@ -22,27 +22,26 @@ The Sailbot library uses a build system called [Premake](https://premake.github.
 #include <sailbot.hpp>
 
 struct TData {
-    char bytes[9];
-    float floats[3];
+    unsigned char m1_dir, m2_dir;
+    unsigned int m1_pow, m2_pow;
 };
 
 struct RData {
-    unsigned short words[3];
-    char bytes[8];
+    math::Vec2 gps, rc_left, rc_right;
+    float wind_direction;
 };
 
-TData tdata = {"Computer", {0.4, 0.5, 0.6}};
+TData tdata = {0, 1, 1024, 1024};
 RData rdata;
 
 int main() {
-    if (sailbot::system::init())
+    if (sailbot::system::init("\\\\.\\COM3", 57600))
         return 1;
 
     while (sailbot::system::update(&tdata, sizeof(TData), &rdata, sizeof(RData))) {
-        std::cout << rdata.bytes << ' ';
-        for (unsigned int i = 0; i < 3; ++i)
-            std::cout << rdata.words[i] << ' ';
-        std::cout << '\n';
+        std::cout << rdata.rc_left.x << ", " << rdata.rc_left.y << ", ";
+        std::cout << rdata.rc_right.x << ", " << rdata.rc_right.y << "  |  ";
+        std::cout << rdata.gps.y << ", " << rdata.gps.x << "  |  " << rdata.wind_direction << '\n';
     }
 }
 
@@ -50,21 +49,29 @@ int main() {
 
 ### [.../test.ino]
 ```cpp
+struct Vec2 {
+    float x, y;
+};
+
 struct RData {
-    char bytes[9];
-    float floats[3];
+    unsigned char m1_dir, m2_dir;
+    unsigned int m1_pow, m2_pow;
 };
 
 struct TData {
-    unsigned short words[3];
-    char bytes[8];
+    Vec2 gps, rc_left, rc_right;
+    float wind_direction;
 };
 
 void setup() {
   Serial.begin(57600);
 }
 
-TData tdata = {{1, 2, 3}, "Arduino"};
+TData tdata = {
+  {42.80212, -70.863186},
+  {0.2, 0.4}, {0.6, 0.8},
+  0.0
+};
 RData rdata;
 
 void loop() {
