@@ -5,3 +5,4 @@
 #include "sailbot/comm.hpp"
 #include "sailbot/system.hpp"
 #include "sailbot/timing.hpp"
+#include "sailbot/tools.hpp"

@@ -4,7 +4,7 @@
 #include <cstring>
 
 namespace sailbot { namespace callbacks { namespace _internal {
-    void empty_void_voidptr_const_uint(void *data, const unsigned int size) {}
+    static void empty_void_voidptr_const_uint(void *data, const unsigned int size) {}
     static void (*on_data_read)(void *data, const unsigned int size) = empty_void_voidptr_const_uint;
     static void (*on_data_write)(void *data, const unsigned int size) = empty_void_voidptr_const_uint;
 }}} // namespace sailbot::callbacks::_internal
@@ -24,7 +24,7 @@ namespace sailbot { namespace system {
         clock::reset();
         return result;
     }
-    constexpr static double TICK_DURATION = 1.0 / 1;
+    constexpr static double TICK_DURATION = 1.0 / 10;
     static double s_current_time = 0, s_total_tick_time = 0;
     static unsigned long long s_total_tick_count = 0;
     static bool s_transmission_switch = true;
@@ -45,3 +45,5 @@ namespace sailbot { namespace system {
         return true;
     }
 }} // namespace sailbot::system
+
+// 120.95 m

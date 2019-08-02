@@ -1,6 +1,5 @@
-struct Vec2 {
-    float x, y;
-};
+struct Vec2 {float x, y;};
+struct Vec3 {float x, y, z;};
 
 struct RData {
     unsigned char m1_dir, m2_dir;
@@ -8,14 +7,15 @@ struct RData {
 };
 
 struct TData {
-    Vec2 gps, rc_left, rc_right;
+    long long gps_lat, gps_lon;
+    Vec2 rc_left, rc_right;
+    Vec3 mag;
     float wind_direction;
 };
 
-void setup() { Serial.begin(57600); }
+void setup() { Serial.begin(115200); }
 
-// I have ordered them in (long, lat) order instead of the standard (lat, long)
-TData tdata = {{-70.863186, 42.80212}, {0.2, 0.4}, {0.6, 0.8}, 0.0};
+TData tdata = {42813356, -70886233, {0.2, 0.4}, {0.6, 0.8}, {0.0, 0.0, 0.0}, 0.0};
 RData rdata;
 
 void loop() {
@@ -25,4 +25,6 @@ void loop() {
             Serial.write(*(reinterpret_cast<unsigned char *>(&tdata) + i));
     }
     Serial.flush();
+    tdata.gps_lat += rand() % 3 - 1;
+    tdata.gps_lon += rand() % 3 - 1;
 }
