@@ -1,7 +1,7 @@
 #include "system.hpp"
 #include "comm.hpp"
 #include "timing.hpp"
-#include <string>
+#include <cstring>
 
 namespace sailbot { namespace callbacks { namespace _internal {
     void empty_void_voidptr_const_uint(void *data, const unsigned int size) {}
@@ -24,7 +24,7 @@ namespace sailbot { namespace system {
         clock::reset();
         return result;
     }
-    constexpr static double TICK_DURATION = 1.0 / 10;
+    constexpr static double TICK_DURATION = 1.0 / 1;
     static double s_current_time = 0, s_total_tick_time = 0;
     static unsigned long long s_total_tick_count = 0;
     static bool s_transmission_switch = true;

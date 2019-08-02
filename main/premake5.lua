@@ -5,7 +5,7 @@ project "main"
 	objdir("%{wks.location}/build/bin/intermediates/" .. outputdir .. "/%{prj.name}")
 	files { "src/**.hpp", "src/**.cpp" }
 	includedirs { "%{inc.sailbot}" }
-	links { "sailbot" }
+	links { "sailbot", "math" }
 	warnings "Extra"
 	filter "configurations:Debug"
 		defines "_CONFIG_DEBUG"

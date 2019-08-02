@@ -1,3 +1,4 @@
+#include <cmath>
 #include <iostream>
 #include <sailbot.hpp>
 
@@ -24,19 +25,29 @@ struct RData {
     float wind_direction;
 };
 
-TData tdata = {0, 1, 1024, 1024};
-RData rdata;
+math::dVec2 s_last_gps = {0, 0};
+double s_dist_since_last_tick = 0;
+
+void tick(void *p_data, const unsigned int size) {
+    RData data = *reinterpret_cast<RData *>(p_data);
+    math::dVec2 current_gps = {data.gps.x, data.gps.y};
+    s_dist_since_last_tick = gps_distance_meters(current_gps, s_last_gps);
+    s_last_gps = current_gps;
+
+    std::cout << s_dist_since_last_tick << "        ";
+    std::cout << data.rc_left.x << ", " << data.rc_left.y << ", ";
+    std::cout << data.rc_right.x << ", " << data.rc_right.y << "  |  ";
+    std::cout << data.gps.y << ", " << data.gps.x << "  |  " << data.wind_direction << '\n';
+}
 
 int main() {
-    std::cout << gps_distance_meters({-70.923052, 42.801684}, {-70.890391, 42.809273}) << '\n';
-    return 0;
-
-    if (sailbot::system::init("\\\\.\\COM3", 57600))
+    if (sailbot::system::init("/dev/ttyACM1", 57600))
         return 1;
+    sailbot::callbacks::set::on_data_read(tick);
+
+    TData tdata = {0, 1, 1024, 1024};
+    RData rdata;
 
     while (sailbot::system::update(&tdata, sizeof(TData), &rdata, sizeof(RData))) {
-        std::cout << rdata.rc_left.x << ", " << rdata.rc_left.y << ", ";
-        std::cout << rdata.rc_right.x << ", " << rdata.rc_right.y << "  |  ";
-        std::cout << rdata.gps.y << ", " << rdata.gps.x << "  |  " << rdata.wind_direction << '\n';
     }
 }
