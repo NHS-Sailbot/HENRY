@@ -37,6 +37,7 @@ int main() {
     TData tdata = {0, 1, 1024, 1024};
     RData rdata;
 
-    while (sailbot::system::update(&tdata, sizeof(TData), &rdata, sizeof(RData))) {
+    while (true) {
+        sailbot::system::update(&tdata, sizeof(TData), &rdata, sizeof(RData));
     }
 }
