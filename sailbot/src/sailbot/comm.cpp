@@ -3,9 +3,16 @@
 #include <cstdio>
 
 namespace sailbot { namespace comm {
-    constexpr static unsigned int INVALID_BAUDRATE = 1, UNABLE_TO_OPEN_PORT = 2, SPECIFIED_PORT_IS_LOCKED = 3,
-                                  UNABLE_TO_GET_PORT_SETTINGS = 4, UNABLE_TO_SET_PORT_SETTINGS = 5,
-                                  UNABLE_TO_GET_PORT_STATUS = 6, UNABLE_TO_SET_PORT_STATUS = 7, SUCCESS = 0;
+    enum OpenDeviceError : const unsigned char {
+        SUCCESS = 0,
+        INVALID_BAUDRATE = 1,
+        UNABLE_TO_OPEN_PORT = 2,
+        SPECIFIED_PORT_IS_LOCKED = 3,
+        UNABLE_TO_GET_PORT_SETTINGS = 4,
+        UNABLE_TO_SET_PORT_SETTINGS = 5,
+        UNABLE_TO_GET_PORT_STATUS = 6,
+        UNABLE_TO_SET_PORT_STATUS = 7
+    };
 #ifndef _CONFIG_PLATFORM_WINDOWS
 #include <sys/file.h>
 #include <sys/ioctl.h>

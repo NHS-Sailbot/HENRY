@@ -10,7 +10,7 @@ namespace sailbot { namespace timing {
 
 namespace sailbot { namespace clock {
     using namespace std::chrono;
-    time_point<steady_clock> start;
+    static time_point<steady_clock> start;
     void reset() { start = steady_clock::now(); }
     double now() { return duration_cast<microseconds>(steady_clock::now() - start).count() / 1000000.0; }
 }} // namespace sailbot::clock

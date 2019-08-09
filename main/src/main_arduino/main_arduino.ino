@@ -1,21 +1,26 @@
-struct Vec2 {float x, y;};
-struct Vec3 {float x, y, z;};
+struct Vec2 {
+    float x, y;
+};
+struct Vec3 {
+    float x, y, z;
+};
 
 struct RData {
     unsigned char m1_dir, m2_dir;
-    unsigned int m1_pow, m2_pow;
+    unsigned short m1_pow, m2_pow;
 };
 
 struct TData {
-    long long gps_lat, gps_lon;
-    Vec2 rc_left, rc_right;
-    Vec3 mag;
+    float gps_lat, gps_lon;
     float wind_direction;
+    float rc_switch;
+    Vec2 rc_left, rc_right;
+    Vec3 magnetometer;
 };
 
 void setup() { Serial.begin(115200); }
 
-TData tdata = {42813356, -70886233, {0.2, 0.4}, {0.6, 0.8}, {0.0, 0.0, 0.0}, 0.0};
+TData tdata = {42.813356f, -70.886233f, 0.0, 0.0, {0.2, 0.4}, {0.6, 0.8}, {0.0, 0.0, 0.0}};
 RData rdata;
 
 void loop() {
@@ -25,6 +30,6 @@ void loop() {
             Serial.write(*(reinterpret_cast<unsigned char *>(&tdata) + i));
     }
     Serial.flush();
-    tdata.gps_lat += rand() % 3 - 1;
-    tdata.gps_lon += rand() % 3 - 1;
+    tdata.gps_lat += 0.00001;
+    tdata.gps_lon += 0.00001;
 }

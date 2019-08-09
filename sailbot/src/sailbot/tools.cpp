@@ -1,5 +1,5 @@
 #include "tools.hpp"
-#include <cmath>
+#include <math.h>
 
 namespace sailbot { namespace tools {
     double gps_distance_meters(const math::dVec2 &g1, const math::dVec2 &g2) {

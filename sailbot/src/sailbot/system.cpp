@@ -1,17 +1,17 @@
 #include "system.hpp"
 #include "comm.hpp"
 #include "timing.hpp"
-#include <cstring>
+#include <string.h>
 
 namespace sailbot { namespace callbacks { namespace _internal {
-    static void empty_void_voidptr_const_uint(void *data, const unsigned int size) {}
-    static void (*on_data_read)(void *data, const unsigned int size) = empty_void_voidptr_const_uint;
-    static void (*on_data_write)(void *data, const unsigned int size) = empty_void_voidptr_const_uint;
+    static void empty_void() {}
+    static void (*on_data_read)() = empty_void;
+    static void (*on_data_write)() = empty_void;
 }}} // namespace sailbot::callbacks::_internal
 
 namespace sailbot { namespace callbacks { namespace set {
-    void on_data_read(void (*func)(void *data, const unsigned int size)) { callbacks::_internal::on_data_read = func; }
-    void on_data_write(void (*func)(void *data, const unsigned int size)) { callbacks::_internal::on_data_write = func; }
+    void on_data_read(void (*func)()) { callbacks::_internal::on_data_read = func; }
+    void on_data_write(void (*func)()) { callbacks::_internal::on_data_write = func; }
 }}} // namespace sailbot::callbacks::set
 
 namespace sailbot { namespace system {
@@ -34,10 +34,10 @@ namespace sailbot { namespace system {
             s_total_tick_time = s_current_time;
             if (s_total_tick_count % 2) {
                 sailbot::comm::write_buffer(s_current_port, tdata, tsize);
-                callbacks::_internal::on_data_write(tdata, tsize);
+                callbacks::_internal::on_data_write();
             } else {
                 sailbot::comm::read_buffer(s_current_port, rdata, rsize);
-                callbacks::_internal::on_data_read(rdata, rsize);
+                callbacks::_internal::on_data_read();
             }
         }
         return true;

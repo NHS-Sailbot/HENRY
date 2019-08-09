@@ -1,41 +1,36 @@
-#include <iomanip>
 #include <iostream>
 #include <sailbot.hpp>
 
-struct TData {
-    unsigned char m1_dir, m2_dir;
-    unsigned int m1_pow, m2_pow;
+enum MotorDir : unsigned char { Forward = 0x0, Backward = 0x1 };
+
+struct TData {                     // size is 6 bytes
+    unsigned char m1_dir, m2_dir;  // 1 byte (uchar)
+    unsigned short m1_pow, m2_pow; // 2 bytes (ushort)
 };
 
-struct RData {
-    long long gps_lat, gps_lon;
-    math::Vec2 rc_left, rc_right;
-    math::Vec3 mag;
-    float wind_direction;
+struct RData {                    // size is 44 bytes
+    float gps_lat, gps_lon;       // 4 bytes (float)
+    float wind_direction;         // 4 bytes (float)
+    float rc_switch;              // 4 bytes (float)
+    math::Vec2 rc_left, rc_right; // 8 bytes (float pair)
+    math::Vec3 magnetometer;      // 12 bytes (float triplet)
 };
 
-math::dVec2 s_last_gps = {42.814441, -70.886167};
-double s_dist_since_last_tick = 0;
+static TData tdata = {0, 1, 1024, 1024};
+static RData rdata;
 
-void tick(void *p_data, const unsigned int size) {
-    RData data = *reinterpret_cast<RData *>(p_data);
-    math::dVec2 current_gps = {static_cast<double>(data.gps_lat) / 1000000, static_cast<double>(data.gps_lon) / 1000000};
-    s_dist_since_last_tick = sailbot::tools::gps_distance_meters(current_gps, s_last_gps);
-    s_last_gps = current_gps;
-
-    std::cout << std::setw(10) << s_dist_since_last_tick << "  ";
-    std::cout << data.rc_left.x << ", " << data.rc_left.y << ", ";
-    std::cout << data.rc_right.x << ", " << data.rc_right.y << "  |  ";
-    std::cout << data.gps_lat << ", " << data.gps_lon << "  |  " << data.wind_direction << '\n';
+void tick() {
+    std::cout << rdata.rc_left.x << ", " << rdata.rc_left.y << ", ";
+    std::cout << rdata.rc_right.x << ", " << rdata.rc_right.y << "  |  ";
+    std::cout << rdata.gps_lat << ", " << rdata.gps_lon << "  |  " << rdata.wind_direction << '\n';
 }
 
 int main() {
+    sailbot::callbacks::set::on_data_read(tick);
     if (sailbot::system::init("\\\\.\\COM3", 115200))
         return 1;
-    sailbot::callbacks::set::on_data_read(tick);
 
-    TData tdata = {0, 1, 1024, 1024};
-    RData rdata;
+    math::Vec2 a = rdata.rc_left + rdata.rc_right;
 
     while (true) {
         sailbot::system::update(&tdata, sizeof(TData), &rdata, sizeof(RData));

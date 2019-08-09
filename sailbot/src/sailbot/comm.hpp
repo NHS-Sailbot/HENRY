@@ -18,8 +18,23 @@ namespace sailbot { namespace comm {
         "\\\\.\\COM22", "\\\\.\\COM23", "\\\\.\\COM24", "\\\\.\\COM25", "\\\\.\\COM26", "\\\\.\\COM27", "\\\\.\\COM28",
         "\\\\.\\COM29", "\\\\.\\COM30", "\\\\.\\COM31", "\\\\.\\COM32"};
 #endif
+    // **INTENDED ONLY FOR INTERNAL USE**
+    // Opens the specified device file, returning the success
+    // state of said process.
+    // This function takes a `const unsigned int port` representing
+    // the index of the `DEVICE_FILE` array above and the
+    // `const unsigned int baudrate` at which to open the file.
     int open_device(const unsigned int port, const unsigned int baudrate);
+
+    // **INTENDED ONLY FOR INTERNAL USE**
+    // Calls `sailbot::comm::open_device` and handles the errors
+    // by printing them to the console.
+    // See `sailbot::comm::open_device` for more info on the arguments.
     int open_device_err(const unsigned int port, const unsigned int baudrate);
+
+    // Writes to the specified device file
     void write_buffer(const unsigned int port, const void *data, const unsigned int size);
+
+    //
     void read_buffer(const unsigned int port, void *data, const unsigned int size);
 }} // namespace sailbot::comm
