@@ -1,4 +1,4 @@
-./build/premake/premake5 gmake2
+./build/premake/premake_bootstrap gmake2
 if [ "$#" -eq  "0" ]
 then
 	make
