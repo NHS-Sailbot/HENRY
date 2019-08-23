@@ -3,6 +3,9 @@ BasedOnStyle: LLVM
 IndentWidth: 4
 AccessModifierOffset: -2
 SortUsingDeclarations: false
-NamespaceIndentation: Inner
+AllowShortIfStatementsOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortBlocksOnASingleLine: true
+NamespaceIndentation: All
 CompactNamespaces: true
 ColumnLimit: 128

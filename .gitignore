@@ -10,4 +10,8 @@ Makefile
 /build/bin
 
 *.exe
+*.out
+
+*.a
+*.d
 *.o
