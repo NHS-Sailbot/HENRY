@@ -35,6 +35,6 @@ namespace sailbot { namespace comm {
     // Writes to the specified device file
     void write_buffer(const unsigned int port, const void *data, const unsigned int size);
 
-    //
+    // TODO: Documentation Comment
     void read_buffer(const unsigned int port, void *data, const unsigned int size);
 }} // namespace sailbot::comm

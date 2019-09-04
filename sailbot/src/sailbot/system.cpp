@@ -18,13 +18,11 @@ namespace sailbot { namespace system {
     static unsigned int s_current_port = 0;
     int init(const char *device_file, const unsigned int baud_rate) {
         for (unsigned int i = 0; i < sailbot::comm::PORT_COUNT; ++i)
-            if (!strcmp(device_file, sailbot::comm::DEVICE_FILE[i]))
-                s_current_port = i;
+            if (!strcmp(device_file, sailbot::comm::DEVICE_FILE[i])) s_current_port = i;
         const int result = sailbot::comm::open_device_err(s_current_port, baud_rate);
         clock::reset();
         return result;
     }
-    constexpr static double TICK_DURATION = 1.0 / 10;
     static double s_current_time = 0, s_total_tick_time = 0;
     static unsigned long long s_total_tick_count = 0;
     bool update(void *tdata, const unsigned int tsize, void *rdata, const unsigned int rsize) {

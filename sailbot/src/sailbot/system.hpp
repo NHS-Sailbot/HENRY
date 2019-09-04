@@ -17,6 +17,9 @@ namespace sailbot { namespace callbacks { namespace set {
 }}} // namespace sailbot::callbacks::set
 
 namespace sailbot { namespace system {
+    // TODO: Documentation Comment
+    constexpr static double TICK_DURATION = 1.0 / 10;
+
     // Initializes the sailbot system by opening the specified
     // device file in the Operating System to allow for data
     // transfer over serial to the Arduino.

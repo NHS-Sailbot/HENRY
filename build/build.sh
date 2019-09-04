@@ -1,4 +1,9 @@
-./build/premake/premake_bootstrap gmake2
+if ["$1" -eq "arm"]
+then
+    ./build/premake/premake5_ARM gmake2
+else   
+    ./build/premake/premake5 gmake2
+fi
 if [ "$#" -eq  "0" ]
 then
 	make

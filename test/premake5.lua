@@ -4,7 +4,7 @@ project "test"
 	targetdir("%{wks.location}/build/bin/" .. outputdir .. "/%{prj.name}")
 	objdir("%{wks.location}/build/bin/intermediates/" .. outputdir .. "/%{prj.name}")
 	files { "src/**.hpp", "src/**.cpp" }
-	includedirs { "%{inc.sailbot}", "%{inc.glfw}", "%{inc.glad}" }
+	includedirs { "%{inc.sailbot}" }
 	links { "sailbot" }
 	warnings "Extra"
 	filter "configurations:Debug"
@@ -24,7 +24,8 @@ project "test"
 		defines "_CONFIG_PLATFORM_WINDOWS"
 	filter "system:linux"
         defines "_CONFIG_PLATFORM_LINUX"
-        links { "glfw", "glad", "math" }
+        links { "math", "engine" }
+        links { "glfw", "glad", "stb" }
         links { "X11", "dl", "pthread" }
 	filter "system:macosx"
 		defines "_CONFIG_PLATFORM_MACOS"

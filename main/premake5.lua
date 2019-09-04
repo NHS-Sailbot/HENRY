@@ -5,7 +5,7 @@ project "main"
 	objdir("%{wks.location}/build/bin/intermediates/" .. outputdir .. "/%{prj.name}")
 	files { "src/**.hpp", "src/**.cpp" }
 	includedirs { "%{inc.sailbot}" }
-	links { "sailbot", "math" }
+	links { "sailbot" }
 	warnings "Extra"
 	filter "configurations:Debug"
 		defines "_CONFIG_DEBUG"
@@ -24,5 +24,8 @@ project "main"
 		defines "_CONFIG_PLATFORM_WINDOWS"
 	filter "system:linux"
 		defines "_CONFIG_PLATFORM_LINUX"
+        links { "math", "engine" }
+        links { "glfw", "glad", "stb" }
+        links { "X11", "dl", "pthread" }
 	filter "system:macosx"
 		defines "_CONFIG_PLATFORM_MACOS"
