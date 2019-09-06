@@ -46,7 +46,10 @@ int main() {
 
         unsigned char image_data[sailbot::camera::width * sailbot::camera::height * 3];
         unsigned char *buffer_start = sailbot::camera::read();
-        if (buffer_start == nullptr) { buffer_start = image_data; }
+        if (buffer_start == nullptr) {
+            // printf(".");
+            buffer_start = image_data;
+        }
         unsigned char *cam_y = buffer_start, *cam_u = buffer_start + 1, *cam_v = buffer_start + 3;
         for (unsigned int y = 0; y < sailbot::camera::height; ++y) {
             for (unsigned int x = 0; x < sailbot::camera::width; ++x) {

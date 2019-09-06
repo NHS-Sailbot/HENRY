@@ -35,7 +35,7 @@ namespace shaders {
     
     void main() {
         color = vec4(v_tex, 0, 1);
-        color = yuv422_rgb(texture(tex, v_tex));
+        color = yuv422_rgb(texture(tex, v_tex)) / 2;
     }
     )";
 } // namespace shaders
