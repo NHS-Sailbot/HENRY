@@ -15,8 +15,10 @@
 
 namespace sailbot { namespace camera {
     static int device_file_id;
-    static v4l2_buffer bufferinfo;
-    static void *buffer_start;
+    static constexpr unsigned int buffer_count = 4;
+    static v4l2_buffer bufferinfo[buffer_count];
+    static void *buffer_start[buffer_count];
+    static int buffer_index = -1;
     void open() {
         device_file_id = ::open("/dev/video0", O_RDWR);
         if (!device_file_id) { std::cout << "unable to open video source"; }
@@ -44,7 +46,7 @@ namespace sailbot { namespace camera {
         v4l2_streamparm streamparam;
         streamparam.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         streamparam.parm.capture.timeperframe.numerator = 1;
-        streamparam.parm.capture.timeperframe.denominator = 30;
+        streamparam.parm.capture.timeperframe.denominator = 60;
         if (ioctl(device_file_id, VIDIOC_S_PARM, &streamparam) == -1 ||
             ioctl(device_file_id, VIDIOC_G_PARM, &streamparam) == -1) {
             printf("unable to set framerate\n");
@@ -53,50 +55,60 @@ namespace sailbot { namespace camera {
         v4l2_requestbuffers bufrequest;
         bufrequest.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         bufrequest.memory = V4L2_MEMORY_MMAP;
-        bufrequest.count = 1;
+        bufrequest.count = 4;
         if (ioctl(device_file_id, VIDIOC_REQBUFS, &bufrequest) < 0) {
             std::cout << "unable to request video buffers";
             ::close(device_file_id);
         }
-        memset(&bufferinfo, 0, sizeof(bufferinfo));
-        bufferinfo.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-        bufferinfo.memory = V4L2_MEMORY_MMAP;
-        bufferinfo.index = 0;
-        if (ioctl(device_file_id, VIDIOC_QUERYBUF, &bufferinfo) < 0) {
-            std::cout << "unable to query video buffers";
-            ::close(device_file_id);
-        }
-        // MAP MEMORY
-        buffer_start = mmap(NULL, bufferinfo.length, PROT_READ | PROT_WRITE, MAP_SHARED, device_file_id, bufferinfo.m.offset);
-        if (buffer_start == MAP_FAILED) {
-            perror("mmap");
-            exit(1);
-        }
-        memset(buffer_start, 0, bufferinfo.length);
-        // PREPARE STREAMING INFO
-        // Activate streaming
-        int type = bufferinfo.type;
-        if (ioctl(device_file_id, VIDIOC_STREAMON, &type) < 0) {
-            perror("VIDIOC_STREAMON");
-            exit(1);
+        for (unsigned char i = 0; i < buffer_count; ++i) {
+            bufferinfo[i].type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+            bufferinfo[i].memory = V4L2_MEMORY_MMAP;
+            bufferinfo[i].index = i;
+            if (ioctl(device_file_id, VIDIOC_QUERYBUF, &bufferinfo[i]) < 0) {
+                std::cout << "unable to query video buffers";
+                ::close(device_file_id);
+            }
+            // MAP MEMORY
+            buffer_start[i] =
+                mmap(NULL, bufferinfo[i].length, PROT_READ | PROT_WRITE, MAP_SHARED, device_file_id, bufferinfo[i].m.offset);
+            if (buffer_start[i] == MAP_FAILED) {
+                perror("mmap");
+                exit(1);
+            }
+            memset(buffer_start[i], 0, bufferinfo[i].length);
+            // PREPARE STREAMING INFO
+            // Activate streaming
+            int type = bufferinfo[i].type;
+            if (ioctl(device_file_id, VIDIOC_STREAMON, &type) < 0) {
+                perror("VIDIOC_STREAMON");
+                exit(1);
+            }
         }
     }
     unsigned char *read() {
-        // Put the buffer in the incoming queue.
-        if (ioctl(device_file_id, VIDIOC_QBUF, &bufferinfo) < 0) {
-            perror("VIDIOC_QBUF");
-            exit(1);
+        ++buffer_index;
+        if (buffer_index == buffer_count) buffer_index = 0;
+        if (buffer_index == 0) {
+            for (unsigned char i = 0; i < buffer_count; ++i) {
+                // Put the buffer in the incoming queue.
+                if (ioctl(device_file_id, VIDIOC_QBUF, &bufferinfo[i]) < 0) {
+                    perror("VIDIOC_QBUF");
+                    exit(1);
+                }
+            }
         }
+
         // The buffer's waiting in the outgoing queue.
-        if (ioctl(device_file_id, VIDIOC_DQBUF, &bufferinfo) < 0) {
+        if (ioctl(device_file_id, VIDIOC_DQBUF, &bufferinfo[buffer_index]) < 0) {
             perror("VIDIOC_QBUF");
             exit(1);
         }
-        return reinterpret_cast<unsigned char *>(buffer_start);
+
+        return reinterpret_cast<unsigned char *>(buffer_start[buffer_index]);
     }
     void close() {
         // Deactivate streaming
-        int type = bufferinfo.type;
+        int type = bufferinfo[0].type;
         if (ioctl(device_file_id, VIDIOC_STREAMOFF, &type) < 0) {
             perror("VIDIOC_STREAMOFF");
             exit(1);

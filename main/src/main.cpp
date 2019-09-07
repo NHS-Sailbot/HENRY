@@ -72,6 +72,7 @@ static constexpr char *frag_src = R"(
 int main() {
     sailbot::system::init("/dev/ttyACM0", 9600);
     sailbot::camera::open();
+    sailbot::callbacks::set::on_data_read(tick);
 
     coel::Window window(sailbot::camera::width, sailbot::camera::height, "test");
     coel::Texture texture(sailbot::camera::width, sailbot::camera::height, coel::ColorSpace::RGB);
@@ -102,6 +103,8 @@ int main() {
         coel::renderer::batch2d::flush();
 
         window.update();
+
+        ++frames_per_tick;
     }
 
     sailbot::camera::close();
