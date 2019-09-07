@@ -22,15 +22,19 @@ static RData rdata;
 static unsigned int frames_per_tick = 0;
 
 void tick() {
-    // printf("%f, %f, ", rdata.rc_left.x, rdata.rc_left.y);
-    // printf("%f, %f | ", rdata.rc_right.x, rdata.rc_right.y);
-    // printf("%f, %f | %f\n", rdata.gps_lat, rdata.gps_lat, rdata.wind_direction);
+    printf("%f, %f, ", rdata.rc_left.x, rdata.rc_left.y);
+    printf("%f, %f | ", rdata.rc_right.x, rdata.rc_right.y);
+    printf("%f, %f | %f | ", rdata.gps_lat, rdata.gps_lat, rdata.wind_direction);
     printf("fps: %f\n", 1.0 / sailbot::system::TICK_DURATION * frames_per_tick);
     frames_per_tick = 0;
 }
 
 int main() {
-    if (!sailbot::camera::open()) return -1;
+    sailbot::camera::open();
+    sailbot::camera::get_capability();
+    sailbot::camera::set_format();
+    sailbot::camera::set_framerate();
+    sailbot::camera::create_buffers();
 
     sailbot::callbacks::set::on_data_read(tick);
     sailbot::system::init("/dev/ttyACM0", 115200);
@@ -46,10 +50,7 @@ int main() {
 
         unsigned char image_data[sailbot::camera::width * sailbot::camera::height * 3];
         unsigned char *buffer_start = sailbot::camera::read();
-        if (buffer_start == nullptr) {
-            // printf(".");
-            buffer_start = image_data;
-        }
+        if (buffer_start == nullptr) buffer_start = image_data;
         unsigned char *cam_y = buffer_start, *cam_u = buffer_start + 1, *cam_v = buffer_start + 3;
         for (unsigned int y = 0; y < sailbot::camera::height; ++y) {
             for (unsigned int x = 0; x < sailbot::camera::width; ++x) {
@@ -69,4 +70,6 @@ int main() {
         window.update();
         frames_per_tick++;
     }
+
+    sailbot::camera::close();
 }

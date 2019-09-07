@@ -1,10 +1,12 @@
 #pragma once
 
 namespace sailbot { namespace camera {
-    // TODO: Documentation Comment
-    static constexpr unsigned int width = 1920, height = 1080;
-    // TODO: Documentation Comment
-    bool open();
-    // TODO: Documentation Comment
+    static constexpr unsigned int width = 1280, height = 720;
+    void open();
+    void get_capability();
+    void set_format();
+    void set_framerate();
+    void create_buffers();
     unsigned char *read();
+    void close();
 }} // namespace sailbot::camera

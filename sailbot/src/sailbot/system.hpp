@@ -18,7 +18,7 @@ namespace sailbot { namespace callbacks { namespace set {
 
 namespace sailbot { namespace system {
     // TODO: Documentation Comment
-    constexpr static double TICK_DURATION = 1.0 / 10;
+    constexpr static double TICK_DURATION = 1.0 / 1;
 
     // Initializes the sailbot system by opening the specified
     // device file in the Operating System to allow for data

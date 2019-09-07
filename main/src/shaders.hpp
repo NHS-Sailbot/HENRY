@@ -27,14 +27,15 @@ namespace shaders {
     vec4 yuv422_rgb(in vec4 col) {
         col -= vec4(0.0625, 0.5, 0.5, 0);
         vec4 result = vec4(
-            1.1640625 * col.x + 1.59765625 * col.z + 0.5,
-            0,0,1
+            298.0/256 * col.x + 409.0/256 * col.z + 0.5,
+            298.0/256 * col.x + 100.0/256 * col.y - 208.0/256 * col.z + 0.5,
+            298.0/256 * col.x + 516.0/256 * col.y + 0.5,
+            1
         );
         return result;
     }
     
     void main() {
-        color = vec4(v_tex, 0, 1);
         color = yuv422_rgb(texture(tex, v_tex)) / 2;
     }
     )";
