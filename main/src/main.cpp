@@ -31,17 +31,13 @@ void tick() {
 
 int main() {
     sailbot::camera::open();
-    sailbot::camera::get_capability();
-    sailbot::camera::set_format();
-    sailbot::camera::set_framerate();
-    sailbot::camera::create_buffers();
 
     sailbot::callbacks::set::on_data_read(tick);
     sailbot::system::init("/dev/ttyACM0", 115200);
 
     coel::Window window(sailbot::camera::width, sailbot::camera::height, "window");
-    coel::Shader shader(shaders::vert_src, shaders::frag_src);
     coel::Texture texture(sailbot::camera::width, sailbot::camera::height, coel::ColorSpace::RGB);
+    coel::Shader shader(shaders::vert_src, shaders::frag_src);
 
     coel::renderer::batch2d::init();
 
@@ -63,7 +59,7 @@ int main() {
             }
         }
         texture.update(image_data);
-
+        coel::renderer::clear();
         coel::renderer::batch2d::submit_rect(-1, 1, 2, -2);
         coel::renderer::batch2d::flush();
 

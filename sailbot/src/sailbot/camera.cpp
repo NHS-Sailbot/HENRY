@@ -20,8 +20,6 @@ namespace sailbot { namespace camera {
     void open() {
         device_file_id = ::open("/dev/video0", O_RDWR);
         if (!device_file_id) { std::cout << "unable to open video source"; }
-    }
-    void get_capability() {
         // GET CAPABILITIES
         v4l2_capability capability;
         if (ioctl(device_file_id, VIDIOC_QUERYCAP, &capability)) {
@@ -32,8 +30,6 @@ namespace sailbot { namespace camera {
             std::cout << "device does not handle single-planar video capture.\n";
             ::close(device_file_id);
         }
-    }
-    void set_format() {
         // SET FORMAT
         v4l2_format format;
         format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -44,8 +40,6 @@ namespace sailbot { namespace camera {
             std::cout << "unable to set video capture format";
             ::close(device_file_id);
         }
-    }
-    void set_framerate() {
         // SET FRAMERATE
         v4l2_streamparm streamparam;
         streamparam.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -55,8 +49,6 @@ namespace sailbot { namespace camera {
             ioctl(device_file_id, VIDIOC_G_PARM, &streamparam) == -1) {
             printf("unable to set framerate\n");
         }
-    }
-    void create_buffers() {
         // PREPARE FOR BUFFER HANDLING
         v4l2_requestbuffers bufrequest;
         bufrequest.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;

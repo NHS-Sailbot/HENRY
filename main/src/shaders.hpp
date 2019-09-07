@@ -25,18 +25,21 @@ namespace shaders {
     uniform sampler2D tex;
     
     vec4 yuv422_rgb(in vec4 col) {
-        col -= vec4(0.0625, 0.5, 0.5, 0);
-        vec4 result = vec4(
-            298.0/256 * col.x + 409.0/256 * col.z + 0.5,
-            298.0/256 * col.x + 100.0/256 * col.y - 208.0/256 * col.z + 0.5,
-            298.0/256 * col.x + 516.0/256 * col.y + 0.5,
-            1
+        vec4 result;
+        int c = int(col.x * 256 - 16);
+        int d = int(col.y * 256 - 128);
+        int e = int(col.z * 256 - 128);
+        return vec4(
+            clamp(float((298 * c + 409 * e + 128) >> 8) / 256, 0, 256),
+            clamp(float((298 * c - 100 * d - 208 * e + 128) >> 8) / 256, 0, 256),
+            clamp(float((298 * c + 516 * d + 128) >> 8) / 256, 0, 256),
+            1.0
         );
-        return result;
     }
     
     void main() {
-        color = yuv422_rgb(texture(tex, v_tex)) / 2;
+        color = vec4(v_tex, 0, 1);
+        color = yuv422_rgb(texture(tex, v_tex)); // texture(tex, v_tex);
     }
     )";
 } // namespace shaders

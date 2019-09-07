@@ -71,10 +71,6 @@ static constexpr char *frag_src = R"(
 
 int main() {
     sailbot::camera::open();
-    sailbot::camera::get_capability();
-    sailbot::camera::set_format();
-    sailbot::camera::set_framerate();
-    sailbot::camera::create_buffers();
 
     coel::Window window(capture_width, capture_height, "test");
     coel::renderer::batch2d::init();
