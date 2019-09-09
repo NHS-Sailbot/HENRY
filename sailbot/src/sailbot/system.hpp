@@ -35,4 +35,8 @@ namespace sailbot { namespace system {
     // the data buffers to update on either end.
     // (t means transmit and r means recieve)
     bool update(void *tdata, const unsigned int tsize, void *rdata, const unsigned int rsize);
+
+    // Returns the time inbetween the last time `sailbot::system::update()`
+    // was called and the time that it was called before it.
+    double get_elapsed_time();
 }} // namespace sailbot::system

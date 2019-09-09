@@ -23,10 +23,12 @@ namespace sailbot { namespace system {
         clock::reset();
         return result;
     }
-    static double s_current_time = 0, s_total_tick_time = 0;
     static unsigned long long s_total_tick_count = 0;
+    static double s_current_time = 0, s_previous_time = 0, s_elapsed_time = 0, s_total_tick_time = 0;
     bool update(void *tdata, const unsigned int tsize, void *rdata, const unsigned int rsize) {
         s_current_time = clock::now();
+        s_elapsed_time = s_current_time - s_previous_time;
+        s_previous_time = s_current_time;
         if (s_current_time > s_total_tick_time + TICK_DURATION) {
             s_total_tick_count++;
             s_total_tick_time = s_current_time;
@@ -40,4 +42,5 @@ namespace sailbot { namespace system {
         }
         return true;
     }
+    double get_elapsed_time() { return s_elapsed_time; }
 }} // namespace sailbot::system
