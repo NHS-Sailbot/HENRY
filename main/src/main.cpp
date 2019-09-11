@@ -144,7 +144,7 @@ int main() {
         coel::renderer::batch2d::submit_rect(1, -1, -0.1, 0.1, 1.f);
         coel::renderer::batch2d::flush();
 
-        shader.send_float3("key_color", reinterpret_cast<float *>(&key_color));
+        shader.send_float3("key_color", &key_color);
 
         window.update();
 
