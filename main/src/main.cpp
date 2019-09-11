@@ -22,7 +22,7 @@ void tick() {
     // printf("%f, %f, ", rdata.rc_left.x, rdata.rc_left.y);
     // printf("%f, %f | ", rdata.rc_right.x, rdata.rc_right.y);
     // printf("%f, %f | %f | ", rdata.gps_lat, rdata.gps_lat, rdata.wind_direction);
-    printf("fps: %f, %f\n", 1.0 / sailbot::system::get_elapsed_time(), 1.0 / sailbot::system::TICK_DURATION * frames_per_tick);
+    printf("fps: %f\n", 1.0 / sailbot::system::TICK_DURATION * frames_per_tick);
     frames_per_tick = 0;
 }
 
@@ -101,11 +101,11 @@ struct MainWindow : coel::Window {
     math::Vec2 mouse = {0, 0}, size, selection_cursor = {0, 0};
     MainWindow(const unsigned int width, const unsigned int height, const char *const title)
         : coel::Window(width, height, title), size{float(width), float(height)} {}
-    void mouse_move(const coel::MouseMove &e) override { mouse = {e.x, e.y}; }
+    void mouse_move(const coel::MouseMove &e) override { mouse = {float(e.x), float(e.y)}; }
     void mouse_press(const coel::MousePress &e) override {
         const unsigned int index = int(mouse.x / size.x * sailbot::camera::width) * 3 +
                                    3 * sailbot::camera::width * int(mouse.y / size.y * sailbot::camera::height);
-        key_color = {image_data[index], image_data[index + 1], image_data[index + 2]};
+        key_color = {float(image_data[index]), float(image_data[index + 1]), float(image_data[index + 2])};
         printf("%f, %f, %f\n", key_color.x, key_color.y, key_color.z);
     }
     void window_resize(const coel::WindowResize &e) override { size = {float(e.width), float(e.height)}; }

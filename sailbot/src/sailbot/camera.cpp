@@ -1,4 +1,6 @@
 #include "camera.hpp"
+
+#ifndef _CONFIG_PLATFORM_WINDOWS
 #include <stdio.h>
 
 #include <asm/types.h>
@@ -120,3 +122,18 @@ namespace sailbot { namespace camera {
         ::close(device_file_id);
     }
 }} // namespace sailbot::camera
+#else
+#include <stdio.h>
+namespace sailbot { namespace camera {
+    static unsigned char data[2 * width * height];
+    void open() {
+        printf("[WARNING] The camera API is not supported on Windows!\n"
+               "All data recieved from `sailbot::camera::read()` will "
+               "be set to 0.");
+        for (unsigned int i = 0; i < 2 * width * height; ++i)
+            data[i] = 0;
+    }
+    unsigned char *read() { return data; }
+    void close() {}
+}} // namespace sailbot::camera
+#endif // !_CONFIG_PLATFORM_WINDOWS
