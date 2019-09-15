@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../dep/engine/src/coel.hpp"
 #include "../dep/math/src/math.hpp"
 
 #include "sailbot/camera.hpp"

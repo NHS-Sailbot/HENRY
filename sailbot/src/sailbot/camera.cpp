@@ -21,18 +21,23 @@ namespace sailbot { namespace camera {
     static v4l2_buffer bufferinfo[buffer_count];
     static void *buffer_start[buffer_count];
     static int buffer_index = 0;
-    void open() {
-        device_file_id = ::open("/dev/video0", O_RDWR);
-        if (!device_file_id) { std::cout << "unable to open video source"; }
+    bool open(const char *const device_filepath) {
+        device_file_id = ::open(device_filepath, O_RDWR);
+        if (!device_file_id) {
+            std::cout << "unable to open video source\n";
+            return false;
+        }
         // GET CAPABILITIES
         v4l2_capability capability;
         if (ioctl(device_file_id, VIDIOC_QUERYCAP, &capability)) {
-            std::cout << "unable to query video capability";
+            std::cout << "unable to query video capability\n";
             ::close(device_file_id);
+            return false;
         }
         if (!(capability.capabilities & V4L2_CAP_VIDEO_CAPTURE)) {
             std::cout << "device does not handle single-planar video capture.\n";
             ::close(device_file_id);
+            return false;
         }
         // SET FORMAT
         v4l2_format format;
@@ -41,8 +46,9 @@ namespace sailbot { namespace camera {
         format.fmt.pix.width = width;
         format.fmt.pix.height = height;
         if (ioctl(device_file_id, VIDIOC_S_FMT, &format) < 0) {
-            std::cout << "unable to set video capture format";
+            std::cout << "unable to set video capture format\n";
             ::close(device_file_id);
+            return false;
         }
         // SET FRAMERATE
         v4l2_streamparm streamparam;
@@ -52,6 +58,7 @@ namespace sailbot { namespace camera {
         if (ioctl(device_file_id, VIDIOC_S_PARM, &streamparam) == -1 ||
             ioctl(device_file_id, VIDIOC_G_PARM, &streamparam) == -1) {
             printf("unable to set framerate\n");
+            return false;
         }
         // PREPARE FOR BUFFER HANDLING
         v4l2_requestbuffers bufrequest;
@@ -59,8 +66,9 @@ namespace sailbot { namespace camera {
         bufrequest.memory = V4L2_MEMORY_MMAP;
         bufrequest.count = 4;
         if (ioctl(device_file_id, VIDIOC_REQBUFS, &bufrequest) < 0) {
-            std::cout << "unable to request video buffers";
+            std::cout << "unable to request video buffers\n";
             ::close(device_file_id);
+            return false;
         }
         for (unsigned char i = 0; i < buffer_count; ++i) {
             bufferinfo[i].type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -69,13 +77,14 @@ namespace sailbot { namespace camera {
             if (ioctl(device_file_id, VIDIOC_QUERYBUF, &bufferinfo[i]) < 0) {
                 std::cout << "unable to query video buffers\n";
                 ::close(device_file_id);
+                return false;
             }
             // MAP MEMORY
             buffer_start[i] =
                 mmap(NULL, bufferinfo[i].length, PROT_READ | PROT_WRITE, MAP_SHARED, device_file_id, bufferinfo[i].m.offset);
             if (buffer_start[i] == MAP_FAILED) {
                 perror("mmap");
-                exit(1);
+                return false;
             }
             memset(buffer_start[i], 0, bufferinfo[i].length);
         }
@@ -84,16 +93,17 @@ namespace sailbot { namespace camera {
         int type = bufferinfo[0].type;
         if (ioctl(device_file_id, VIDIOC_STREAMON, &type) < 0) {
             perror("VIDIOC_STREAMON");
-            exit(1);
+            return false;
         }
 
         // Put each buffer into the queue
         for (unsigned char i = 1; i < buffer_count; ++i) {
             if (ioctl(device_file_id, VIDIOC_QBUF, &bufferinfo[i]) < 0) {
                 perror("VIDIOC_QBUF");
-                exit(1);
+                return false;
             }
         }
+        return true;
     }
     unsigned char *read() {
         if (ioctl(device_file_id, VIDIOC_QBUF, &bufferinfo[buffer_index]) < 0) {

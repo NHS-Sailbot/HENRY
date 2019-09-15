@@ -18,25 +18,36 @@ namespace sailbot { namespace callbacks { namespace set {
 
 namespace sailbot { namespace system {
     // TODO: Documentation Comment
-    constexpr static double TICK_DURATION = 1.0 / 1;
+    struct Config {                                      // size: 12 bytes (32bit) 20 bytes (64bit)
+        unsigned int baudrate;                           // size: 4 bytes
+        char *ard_device_filepath, *cam_device_filepath; // size: 4 bytes (32bit) 8 bytes (64bit)
+        Config() : baudrate(0), ard_device_filepath(nullptr), cam_device_filepath(nullptr) {}
+        Config(const unsigned int baudrate) : baudrate(baudrate), ard_device_filepath(nullptr), cam_device_filepath(nullptr) {}
+        Config(const unsigned int baudrate, char *const ard_device_filepath, char *const cam_device_filepath)
+            : baudrate(baudrate), ard_device_filepath(ard_device_filepath), cam_device_filepath(cam_device_filepath) {}
+        Config(const Config &config)
+            : baudrate(config.baudrate), ard_device_filepath(config.ard_device_filepath),
+              cam_device_filepath(config.cam_device_filepath) {}
+        Config operator=(const Config &config) {
+            baudrate = config.baudrate, ard_device_filepath = config.ard_device_filepath,
+            cam_device_filepath = config.cam_device_filepath;
+            return *this;
+        }
+    };
 
-    // Initializes the sailbot system by opening the specified
-    // device file in the Operating System to allow for data
-    // transfer over serial to the Arduino.
-    // This function takes a `const char *device_file` and
-    // a `const unsigned int baud_rate`.
-    int init(const char *device_file, const unsigned int baud_rate);
+    // TODO: Documentation Comment
+    int init(const Config &config);
 
-    // Updates the data pointed to in the first and third
-    // arguments by sending and recieving data over the serial
-    // port specified in `sailbot::system::init(...)`.
-    // This function takes a `void *tdata`, a `const unsigned int tsize`,
-    // a `void *rdata` and a `const unsigned int rsize`, representing
-    // the data buffers to update on either end.
-    // (t means transmit and r means recieve)
-    bool update(void *tdata, const unsigned int tsize, void *rdata, const unsigned int rsize);
+    // TODO: Documentation Comment
+    void update();
+
+    // TODO: Documentation Comment
+    bool should_close();
 
     // Returns the time inbetween the last time `sailbot::system::update()`
     // was called and the time that it was called before it.
     double get_elapsed_time();
+
+    // TODO: Documentation Comment
+    void shutdown();
 }} // namespace sailbot::system

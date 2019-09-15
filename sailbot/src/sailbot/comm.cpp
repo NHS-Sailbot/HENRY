@@ -1,8 +1,14 @@
+#ifndef _CONFIG_PLATFORM_WINDOWS
 #include "comm.hpp"
 #include "timing.hpp"
-#include <cstdio>
 
-namespace sailbot { namespace comm {
+#include <cstdio>
+#include <sys/file.h>
+#include <sys/ioctl.h>
+#include <termios.h>
+#include <unistd.h>
+
+namespace sailbot { namespace arduino {
     enum OpenDeviceError : const unsigned char {
         SUCCESS = 0,
         INVALID_BAUDRATE = 1,
@@ -13,61 +19,55 @@ namespace sailbot { namespace comm {
         UNABLE_TO_GET_PORT_STATUS = 6,
         UNABLE_TO_SET_PORT_STATUS = 7
     };
-#ifndef _CONFIG_PLATFORM_WINDOWS
-#include <sys/file.h>
-#include <sys/ioctl.h>
-#include <termios.h>
-#include <unistd.h>
 
-    static int file_id[PORT_COUNT];
-    static termios port_settings, old_port_settings[PORT_COUNT];
+    static int s_device_file_id;
+    static termios port_settings, old_port_settings;
 
-    int open_device(const unsigned int port, const unsigned int baudrate) {
-        unsigned int baud;
+    bool connect(const char *const filepath, unsigned int baudrate) {
         switch (baudrate) {
-        case 50: baud = B50; break;
-        case 75: baud = B75; break;
-        case 110: baud = B110; break;
-        case 134: baud = B134; break;
-        case 150: baud = B150; break;
-        case 200: baud = B200; break;
-        case 300: baud = B300; break;
-        case 600: baud = B600; break;
-        case 1200: baud = B1200; break;
-        case 1800: baud = B1800; break;
-        case 2400: baud = B2400; break;
-        case 4800: baud = B4800; break;
-        case 9600: baud = B9600; break;
-        case 19200: baud = B19200; break;
-        case 38400: baud = B38400; break;
-        case 57600: baud = B57600; break;
-        case 115200: baud = B115200; break;
-        case 230400: baud = B230400; break;
-        case 460800: baud = B460800; break;
-        case 500000: baud = B500000; break;
-        case 576000: baud = B576000; break;
-        case 921600: baud = B921600; break;
-        case 1000000: baud = B1000000; break;
-        case 1152000: baud = B1152000; break;
-        case 1500000: baud = B1500000; break;
-        case 2000000: baud = B2000000; break;
-        case 2500000: baud = B2500000; break;
-        case 3000000: baud = B3000000; break;
-        case 3500000: baud = B3500000; break;
-        case 4000000: baud = B4000000; break;
-        default: return INVALID_BAUDRATE; break;
+        case 50: baudrate = B50; break;
+        case 75: baudrate = B75; break;
+        case 110: baudrate = B110; break;
+        case 134: baudrate = B134; break;
+        case 150: baudrate = B150; break;
+        case 200: baudrate = B200; break;
+        case 300: baudrate = B300; break;
+        case 600: baudrate = B600; break;
+        case 1200: baudrate = B1200; break;
+        case 1800: baudrate = B1800; break;
+        case 2400: baudrate = B2400; break;
+        case 4800: baudrate = B4800; break;
+        case 9600: baudrate = B9600; break;
+        case 19200: baudrate = B19200; break;
+        case 38400: baudrate = B38400; break;
+        case 57600: baudrate = B57600; break;
+        case 115200: baudrate = B115200; break;
+        case 230400: baudrate = B230400; break;
+        case 460800: baudrate = B460800; break;
+        case 500000: baudrate = B500000; break;
+        case 576000: baudrate = B576000; break;
+        case 921600: baudrate = B921600; break;
+        case 1000000: baudrate = B1000000; break;
+        case 1152000: baudrate = B1152000; break;
+        case 1500000: baudrate = B1500000; break;
+        case 2000000: baudrate = B2000000; break;
+        case 2500000: baudrate = B2500000; break;
+        case 3000000: baudrate = B3000000; break;
+        case 3500000: baudrate = B3500000; break;
+        case 4000000: baudrate = B4000000; break;
+        default: return false;
         }
-        file_id[port] = open(DEVICE_FILE[port], O_RDWR | O_NOCTTY | O_NDELAY);
-        if (file_id[port] == -1) return UNABLE_TO_OPEN_PORT;
-        if (flock(file_id[port], LOCK_EX | LOCK_NB)) {
-            close(file_id[port]);
-            return SPECIFIED_PORT_IS_LOCKED;
+        s_device_file_id = open(filepath, O_RDWR | O_NOCTTY | O_NDELAY);
+        if (s_device_file_id == -1) return UNABLE_TO_OPEN_PORT;
+        if (flock(s_device_file_id, LOCK_EX | LOCK_NB)) {
+            close(s_device_file_id);
+            return false;
         }
-        int error = tcgetattr(file_id[port], old_port_settings + port);
+        int error = tcgetattr(s_device_file_id, &old_port_settings);
         if (error == -1) {
-            close(file_id[port]);
-            flock(file_id[port], LOCK_UN);
-            return UNABLE_TO_GET_PORT_SETTINGS;
+            close(s_device_file_id);
+            flock(s_device_file_id, LOCK_UN);
+            return false;
         }
         constexpr static const int cbits = CS8, cpar = 0, ipar = IGNPAR, bstop = 0;
         port_settings = {
@@ -75,126 +75,51 @@ namespace sailbot { namespace comm {
             0,    0, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
             0,    0,
         };
-        cfsetispeed(&port_settings, baud);
-        cfsetospeed(&port_settings, baud);
-        error = tcsetattr(file_id[port], TCSANOW, &port_settings);
+        cfsetispeed(&port_settings, baudrate);
+        cfsetospeed(&port_settings, baudrate);
+        error = tcsetattr(s_device_file_id, TCSANOW, &port_settings);
         if (error == -1) {
-            tcsetattr(file_id[port], TCSANOW, old_port_settings + port);
-            close(file_id[port]);
-            flock(file_id[port], LOCK_UN);
-            return UNABLE_TO_SET_PORT_SETTINGS;
+            tcsetattr(s_device_file_id, TCSANOW, &old_port_settings);
+            close(s_device_file_id);
+            flock(s_device_file_id, LOCK_UN);
+            return false;
         }
         int status;
-        if (ioctl(file_id[port], TIOCMGET, &status) == -1) {
-            tcsetattr(file_id[port], TCSANOW, old_port_settings + port);
-            flock(file_id[port], LOCK_UN);
-            return UNABLE_TO_GET_PORT_STATUS;
+        if (ioctl(s_device_file_id, TIOCMGET, &status) == -1) {
+            tcsetattr(s_device_file_id, TCSANOW, &old_port_settings);
+            flock(s_device_file_id, LOCK_UN);
+            return false;
         }
         status |= TIOCM_DTR;
         status |= TIOCM_RTS;
-        if (ioctl(file_id[port], TIOCMSET, &status) == -1) {
-            tcsetattr(file_id[port], TCSANOW, old_port_settings + port);
-            flock(file_id[port], LOCK_UN);
-            return UNABLE_TO_SET_PORT_STATUS;
+        if (ioctl(s_device_file_id, TIOCMSET, &status) == -1) {
+            tcsetattr(s_device_file_id, TCSANOW, &old_port_settings);
+            flock(s_device_file_id, LOCK_UN);
+            return false;
         }
 
         timing::sleep(1.f);
-        tcflush(file_id[port], TCIOFLUSH);
+        tcflush(s_device_file_id, TCIOFLUSH);
 
-        return 0;
+        // TODO: Add ping back check to see if it is THE arduino
+
+        return true;
     }
 
-    void write_buffer(const unsigned int port, const void *data, const unsigned int size) { write(file_id[port], data, size); }
-    void read_buffer(const unsigned int port, void *data, const unsigned int size) { read(file_id[port], data, size); }
+    void transmit(const void *const data, const unsigned int size) { write(s_device_file_id, data, size); }
 
+    void receive(void *const data, const unsigned int size) { read(s_device_file_id, data, size); }
+
+    void disconnect() { close(s_device_file_id); }
+}} // namespace sailbot::arduino
 #else
-#include "comm.hpp"
-#include <Windows.h>
-    HANDLE file_id[PORT_COUNT];
-    char mode_str[128];
-    int open_device(const unsigned int port, const unsigned int baudrate) {
-        switch (baudrate) {
-        case 110: strcpy(mode_str, "baud=110"); break;
-        case 300: strcpy(mode_str, "baud=300"); break;
-        case 600: strcpy(mode_str, "baud=600"); break;
-        case 1200: strcpy(mode_str, "baud=1200"); break;
-        case 2400: strcpy(mode_str, "baud=2400"); break;
-        case 4800: strcpy(mode_str, "baud=4800"); break;
-        case 9600: strcpy(mode_str, "baud=9600"); break;
-        case 19200: strcpy(mode_str, "baud=19200"); break;
-        case 38400: strcpy(mode_str, "baud=38400"); break;
-        case 57600: strcpy(mode_str, "baud=57600"); break;
-        case 115200: strcpy(mode_str, "baud=115200"); break;
-        case 128000: strcpy(mode_str, "baud=128000"); break;
-        case 256000: strcpy(mode_str, "baud=256000"); break;
-        case 500000: strcpy(mode_str, "baud=500000"); break;
-        case 921600: strcpy(mode_str, "baud=921600"); break;
-        case 1000000: strcpy(mode_str, "baud=1000000"); break;
-        case 1500000: strcpy(mode_str, "baud=1500000"); break;
-        case 2000000: strcpy(mode_str, "baud=2000000"); break;
-        case 3000000: strcpy(mode_str, "baud=3000000"); break;
-        default: return INVALID_BAUDRATE; break;
-        }
-        strcat(mode_str, " data=8 parity=n stop=1 xon=off to=off odsr=off dtr=on rts=on");
+namespace sailbot { namespace arduino {
+    bool connect(const char *const filepath, unsigned int baudrate) { return true; }
 
-        file_id[port] = CreateFileA(DEVICE_FILE[port], GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, NULL);
-        if (file_id[port] == INVALID_HANDLE_VALUE) return UNABLE_TO_OPEN_PORT;
+    void transmit(const void *const data, const unsigned int size) {}
 
-        DCB port_settings;
-        memset(&port_settings, 0, sizeof(port_settings)); // TODO: remove memset
-        port_settings.DCBlength = sizeof(port_settings);
+    void receive(void *const data, const unsigned int size) {}
 
-        if (!BuildCommDCBA(mode_str, &port_settings)) {
-            CloseHandle(file_id[port]);
-            return UNABLE_TO_SET_PORT_SETTINGS;
-        }
-
-        // check
-        port_settings.fOutxCtsFlow = TRUE;
-        port_settings.fRtsControl = RTS_CONTROL_HANDSHAKE;
-
-        if (!SetCommState(file_id[port], &port_settings)) {
-            CloseHandle(file_id[port]);
-            return UNABLE_TO_GET_PORT_SETTINGS;
-        }
-
-        COMMTIMEOUTS timeouts;
-
-        timeouts.ReadIntervalTimeout = MAXDWORD;
-        timeouts.ReadTotalTimeoutMultiplier = 0;
-        timeouts.ReadTotalTimeoutConstant = 0;
-        timeouts.WriteTotalTimeoutMultiplier = 0;
-        timeouts.WriteTotalTimeoutConstant = 0;
-
-        if (!SetCommTimeouts(file_id[port], &timeouts)) {
-            CloseHandle(file_id[port]);
-            return UNABLE_TO_GET_PORT_STATUS;
-        }
-
-        timing::sleep(1.f);
-        PurgeComm(file_id[port], PURGE_RXCLEAR | PURGE_TXCLEAR);
-
-        return SUCCESS;
-    }
-    void write_buffer(const unsigned int port, const void *data, const unsigned int size) {
-        int passthrough;
-        WriteFile(file_id[port], data, size, reinterpret_cast<LPDWORD>(&passthrough), NULL);
-    }
-    void read_buffer(const unsigned int port, void *data, const unsigned int size) {
-        int passthrough;
-        ReadFile(file_id[port], data, size, reinterpret_cast<LPDWORD>(&passthrough), NULL);
-    }
+    void disconnect() {}
+}} // namespace sailbot::arduino
 #endif
-    int open_device_err(const unsigned int port, const unsigned int baudrate) {
-        switch (open_device(port, baudrate)) {
-        case UNABLE_TO_OPEN_PORT: printf("unable to open port %d (%s)\n", port, DEVICE_FILE[port]); return 1;
-        case SPECIFIED_PORT_IS_LOCKED: printf("port %d (%s) is locked\n", port, DEVICE_FILE[port]); return 1;
-        case UNABLE_TO_GET_PORT_SETTINGS: printf("unable to get port %d's (%s) settings\n", port, DEVICE_FILE[port]); return 1;
-        case UNABLE_TO_SET_PORT_SETTINGS: printf("unable to set port %d's (%s) settings\n", port, DEVICE_FILE[port]); return 1;
-        case UNABLE_TO_GET_PORT_STATUS: printf("unable to get port %d's (%s) status\n", port, DEVICE_FILE[port]); return 1;
-        case UNABLE_TO_SET_PORT_STATUS: printf("unable to set port %d's (%s) status\n", port, DEVICE_FILE[port]); return 1;
-        case SUCCESS: printf("SUCCESS! opened port %d (%s)\n", port, DEVICE_FILE[port]); return 0;
-        default: printf("unhandled case; port %d (%s)\n", port, DEVICE_FILE[port]); return 1;
-        }
-    }
-}} // namespace sailbot::comm
