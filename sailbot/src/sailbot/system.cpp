@@ -22,7 +22,7 @@ namespace sailbot { namespace callbacks { namespace set {
 
 namespace sailbot { namespace system {
     struct PixelRGB {
-        char r, g, b;
+        unsigned char r, g, b;
     };
     static PixelRGB camera_data_rgb[camera::width * camera::height];
     static unsigned char *camera_data_raw;
@@ -69,7 +69,7 @@ namespace sailbot { namespace system {
         void main() {
             color = yuv422_rgb(texture(tex, v_tex));
 })";
-
+#ifndef _CONFIG_PLATFORM_WINDOWS
     static inline void run_through_arduino_device_files() {
         printf("Searching for arduino...\n");
         char *const filepath = "/dev/ttyACM0";
@@ -89,7 +89,17 @@ namespace sailbot { namespace system {
         }
         printf("opened `%s`\n", filepath);
     }
+#else
+    static inline void run_through_arduino_device_files() {
+        printf("Searching for arduino...\n");
+        printf("failed to find arduino...\n");
+    }
 
+    static inline void run_through_camera_device_files() {
+        printf("Searching for camera...\n");
+        printf("Failed to find camera\n");
+    }
+#endif
     int init(const Config &config) {
         s_config = config;
 

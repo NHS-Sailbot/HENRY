@@ -136,7 +136,7 @@ namespace sailbot { namespace camera {
 #include <stdio.h>
 namespace sailbot { namespace camera {
     static unsigned char data[2 * width * height];
-    void open() {
+    bool open(const char *const device_filepath) {
         printf("[WARNING] The camera API is not supported on Windows!\n"
                "All data recieved from `sailbot::camera::read()` will "
                "be set to 0.");
