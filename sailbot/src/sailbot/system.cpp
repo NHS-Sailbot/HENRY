@@ -3,6 +3,7 @@
 #include "comm.hpp"
 #include "timing.hpp"
 
+#include "../dep/math/src/math.hpp"
 #include "coel.hpp"
 
 #include <stdio.h>
@@ -70,7 +71,8 @@ namespace sailbot { namespace system {
 })";
 
     static inline void run_through_arduino_device_files() {
-        char *filepath = "/dev/ttyACM0";
+        printf("Searching for arduino...\n");
+        char *const filepath = "/dev/ttyACM0";
         while (!arduino::connect(filepath, s_config.baudrate) && filepath[11] < '9' + 1) {
             printf("unable to open `%s`\n", filepath);
             ++filepath[11];
@@ -79,7 +81,8 @@ namespace sailbot { namespace system {
     }
 
     static inline void run_through_camera_device_files() {
-        char *filepath = "/dev/video0";
+        printf("Searching for camera...\n");
+        char *const filepath = "/dev/video0";
         while (!camera::open(filepath) && filepath[10] < '9' + 1) {
             printf("unable to open `%s`\n", filepath);
             ++filepath[10];
@@ -90,14 +93,14 @@ namespace sailbot { namespace system {
     int init(const Config &config) {
         s_config = config;
 
-        if (config.ard_device_filepath == nullptr)
+        if (!config.ard_device_filepath)
             run_through_arduino_device_files();
         else if (!arduino::connect(config.ard_device_filepath, config.baudrate)) {
             printf("unable to open specified file: `%s`\n", config.ard_device_filepath);
             run_through_arduino_device_files();
         }
 
-        if (config.cam_device_filepath == nullptr)
+        if (!config.cam_device_filepath)
             run_through_camera_device_files();
         else if (!camera::open(config.cam_device_filepath)) {
             printf("unable to open specified file: `%s`\n", config.cam_device_filepath);
@@ -106,22 +109,27 @@ namespace sailbot { namespace system {
 
         s_window.init(camera::width, camera::height, "sailbot window");
         coel::renderer::batch2d::init();
-        s_texture = coel::Texture(sailbot::camera::width, sailbot::camera::height, coel::ColorSpace::RGB);
+        s_texture.init(sailbot::camera::width, sailbot::camera::height, coel::ColorSpace::RGB);
         // TODO: Add compute shader to process the pixel transform
         coel::Shader shader(vert_src, frag_src);
         return 1;
     }
 
-    static constexpr double TICK_DURATION = 0.5;
+    static constexpr double S_TICK_DURATION = 0.5;
     static unsigned long long s_total_tick_count = 0;
     static double s_current_time = 0, s_previous_time = 0, s_elapsed_time = 0, s_total_tick_time = 0;
 
     struct TData {
-        unsigned int m1_pow, m1_dir, m2_pow, m2_dir;
+        unsigned char m1_dir, m2_dir;
+        unsigned short m1_pow, m2_pow;
     } s_tdata;
 
     struct RData {
-        unsigned int m1_pow, m1_dir, m2_pow, m2_dir;
+        float gps_lat, gps_lon;
+        float wind_direction;
+        float rc_switch;
+        math::Vec2 rc_left, rc_right;
+        math::Vec3 magnetometer;
     } s_rdata;
 
     void update() {
@@ -129,7 +137,7 @@ namespace sailbot { namespace system {
         s_current_time = clock::now();
         s_elapsed_time = s_current_time - s_previous_time;
         s_previous_time = s_current_time;
-        if (s_current_time > s_total_tick_time + TICK_DURATION) {
+        if (s_current_time > s_total_tick_time + S_TICK_DURATION) {
             s_total_tick_count++;
             s_total_tick_time = s_current_time;
             if (s_total_tick_count % 2) {
