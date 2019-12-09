@@ -1,6 +1,0 @@
-[submodule "sailbot/dep/math"]
-	path = sailbot/dep/math
-	url = https://github.com/GabeRundlett/math
-[submodule "sailbot/dep/engine"]
-	path = sailbot/dep/engine
-	url = https://github.com/GabeRundlett/engine
