@@ -1,17 +1,6 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(henry VERSION 0.1.0)
+project(henry VERSION 1.0.0)
 
-add_subdirectory(dep/arduino)
-add_subdirectory(dep/camera)
-add_subdirectory(dep/engine)
-
-link_libraries(arduino camera engine)
-
-include_directories(
-    dep/arduino/include 
-    dep/camera/include 
-    dep/camera/dep/debug/include 
-    dep/engine/include
-)
-
+add_subdirectory(engine)
 add_subdirectory(master)
+add_subdirectory(cam_test)
