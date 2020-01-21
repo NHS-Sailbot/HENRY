@@ -1,0 +1,6 @@
+[submodule "dep/Camera"]
+	path = dep/Camera
+	url = https://github.com/NHS-Sailbot/Camera
+[submodule "dep/Arduino"]
+	path = dep/Arduino
+	url = https://github.com/NHS-Sailbot/Arduino
