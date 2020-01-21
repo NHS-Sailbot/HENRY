@@ -1,10 +1,9 @@
-#include <Debug/Debug.hpp>
-
 #include <Arduino.hpp>
 #include <Camera.hpp>
 
-static inline constexpr double rcRange(const unsigned short aVal, const unsigned short aMinVal, const unsigned short aMidVal,
-const unsigned short aMaxVal) {
+#include <iostream>
+
+static inline constexpr double rcRange(const unsigned short aVal, const unsigned short aMinVal, const unsigned short aMidVal, const unsigned short aMaxVal) {
 	if (aVal > aMidVal) {
 		if (aVal > aMaxVal) return 0;
 		return static_cast<double>(aVal - aMidVal) / (aMidVal - aMinVal);
@@ -26,7 +25,6 @@ int main() {
 		unsigned short mRC[6];
 	};
 	struct RemoteT {
-		//
 	};
 
 	Henry::Arduino masterArd(sizeof(MasterR), sizeof(MasterT), 115200, 0xA5);
@@ -38,15 +36,17 @@ int main() {
 
 	Henry::Camera camera(1280, 720);
 
-	enum StatusFlag { NONE,
-		MASTER_ARD,
-		REMOTE_ARD,
-		CAMERA,
-		ALL = MASTER_ARD | REMOTE_ARD | CAMERA };
+	enum StatusFlag {
+		NONE = 0,
+		MASTER_ARD = 1,
+		REMOTE_ARD = 2,
+		CAMERA = 4,
+		ALL = 7
+	};
 	unsigned char statusFlags = ALL;
 
 	if (!masterArd.isConnected()) {
-		Debug::Log::error("Unable to connect with the motors Arduino");
+		std::cout << "Unable to connect with the motors Arduino\n";
 		statusFlags &= ~MASTER_ARD;
 	} else {
 		masterR = reinterpret_cast<MasterR *>(masterArd.mRdata);
@@ -54,7 +54,7 @@ int main() {
 	}
 
 	if (!remoteArd.isConnected()) {
-		Debug::Log::error("Unable to connect with the remote Arduino");
+		std::cout << "Unable to connect with the remote Arduino\n";
 		statusFlags &= ~REMOTE_ARD;
 	} else {
 		remoteR = reinterpret_cast<RemoteR *>(remoteArd.mRdata);
@@ -62,7 +62,7 @@ int main() {
 	}
 
 	if (!camera.isOpen()) {
-		Debug::Log::error("Unable to open the camera");
+		std::cout << "Unable to open the camera\n";
 		statusFlags &= ~CAMERA;
 	}
 
