@@ -1,5 +1,5 @@
-#include <Arduino.hpp>
-#include <Camera.hpp>
+#include <Henry/Arduino.hpp>
+#include <Henry/Camera.hpp>
 
 #include <iostream>
 
